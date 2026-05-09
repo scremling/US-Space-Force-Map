@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Space Force — VC Map 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;font-size:13px}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px}
+h1{font-size:18px;font-weight:600;margin-bottom:4px}
+.subtitle{font-size:12px;color:#666;margin-bottom:16px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tab{padding:6px 14px;border-radius:6px;border:1px solid #ddd;font-size:12px;cursor:pointer;background:#fff;color:#555;transition:all .15s}
+.tab.active{background:#1B3A6B;color:#fff;border-color:#1B3A6B;font-weight:500}
+.view{display:none}
+.view.active{display:block}
+
+/* org */
+.org-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.org-line{display:flex;justify-content:center;margin-bottom:4px}
+.org-line div{width:1px;height:14px;background:#ccc}
+.node{cursor:pointer;border-radius:8px;padding:9px 14px;text-align:center;transition:opacity .15s;border:1px solid #ddd;background:#fff}
+.node:hover{opacity:.85}
+.node.primary{border:2px solid #185FA5;background:#EFF6FF}
+.node.top{background:#EFF6FF;border-color:#185FA5}
+.node .nt{font-size:11px;font-weight:600;color:#1B3A6B}
+.node .ns{font-size:10px;color:#666;margin-top:2px}
+.node .nb{font-size:9px;color:#185FA5;font-weight:500;margin-top:3px}
+.badge{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#185FA5;color:#fff;font-size:9px;padding:1px 8px;border-radius:100px;white-space:nowrap;font-weight:500}
+.rel{position:relative}
+.section-label{display:flex;justify-content:center;margin-bottom:5px}
+.section-label span{background:#eee;font-size:10px;color:#888;padding:2px 12px;border-radius:100px}
+
+/* domains */
+.domain-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.dfilt{padding:4px 10px;border-radius:100px;border:1px solid #ddd;font-size:11px;cursor:pointer;background:#fff;color:#666}
+.dfilt.active{background:#1B3A6B;color:#fff;border-color:#1B3A6B;font-weight:500}
+.domain-item{margin-bottom:8px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;background:#fff}
+.domain-header{padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;background:#fff}
+.domain-header:hover{background:#fafafa}
+.domain-bar{width:3px;border-radius:2px;align-self:stretch;min-height:16px;flex-shrink:0}
+.domain-title{font-size:12px;font-weight:600;flex:1;color:#1a1a1a}
+.domain-budget{font-size:10px;color:#666;white-space:nowrap}
+.domain-chev{font-size:9px;color:#aaa;transition:transform .15s}
+.domain-body{padding:0 14px 12px;display:none}
+.domain-body.open{display:block}
+.domain-desc{font-size:11px;color:#555;line-height:1.6;margin-bottom:8px;padding-top:8px}
+.domain-section{background:#f8f8f8;border-radius:6px;padding:8px 10px;margin-bottom:6px}
+.domain-section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.domain-section-body{font-size:11px;color:#555;line-height:1.6}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tag{font-size:10px;padding:2px 8px;border-radius:100px;background:#EFF6FF;color:#185FA5}
+.ws-box{border-left:3px solid #3B6D11;background:#f0f7e8;border-radius:0 6px 6px 0;padding:8px 10px}
+.ws-label{font-size:10px;font-weight:600;color:#3B6D11;margin-bottom:3px}
+.ws-text{font-size:11px;color:#444;line-height:1.6}
+
+/* engage / playbook */
+.card{margin-bottom:8px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;background:#fff}
+.card-header{padding:9px 14px;background:#f5f5f5}
+.card-header.blue{background:#EFF6FF;border-bottom:1px solid #BFDBFE}
+.card-header.green{background:#ECFDF5;border-bottom:1px solid #A7F3D0}
+.card-title{font-size:12px;font-weight:600;color:#1B3A6B}
+.card-title.green{color:#065F46}
+.card-body{padding:10px 14px;font-size:11px;color:#444;line-height:1.7}
+.card-body b{color:#1a1a1a;font-weight:600}
+.names-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
+.name-card{background:#f8f8f8;border-radius:6px;padding:8px 10px}
+.name-title{font-size:11px;font-weight:600;color:#1B3A6B}
+.name-role{font-size:10px;color:#666;margin-top:2px;line-height:1.4}
+
+/* detail drawer */
+.drawer{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e0e0e0;padding:16px;max-height:55vh;overflow-y:auto;z-index:100;border-radius:12px 12px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.1)}
+.drawer-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.drawer-title{font-size:13px;font-weight:600;color:#1B3A6B}
+.drawer-close{background:none;border:none;font-size:20px;cursor:pointer;color:#888;padding:0 4px;line-height:1}
+.drawer-body{font-size:12px;color:#444;line-height:1.7}
+.drawer-body b{color:#1a1a1a;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>US Space Force — VC Landscape Map</h1>
+<div class="subtitle">May 2026 · For internal Rosc use</div>
+
+<div class="tabs">
+<button class="tab active" onclick="setTab('org',this)">Org chart</button>
+<button class="tab" onclick="setTab('domains',this)">Mission domains</button>
+<button class="tab" onclick="setTab('engage',this)">How to engage</button>
+<button class="tab" onclick="setTab('playbook',this)">VC playbook</button>
+</div>
+
+<!-- ORG -->
+<div id="view-org" class="view active">
+<div style="font-size:11px;color:#888;margin-bottom:12px">Click any node for detail.</div>
+
+<div class="org-row">
+<div class="node top" onclick="drawer('cso')" style="min-width:260px">
+<div class="nt">Chief of Space Operations (CSO)</div>
+<div class="ns">Gen. B. Chance Saltzman · Pentagon, DC</div>
+</div>
+</div>
+<div class="org-line"><div></div></div>
+
+<div class="org-row">
+<div class="node" onclick="drawer('secaf')" style="min-width:190px">
+<div class="nt">Secretary of the Air Force</div>
+<div class="ns">Troy Meink — civilian oversight</div>
+</div>
+<div class="node" onclick="drawer('asstsec')" style="min-width:190px">
+<div class="nt">Asst Sec — Space Acquisition</div>
+<div class="ns">Frank Calvelli — policy & strategy</div>
+</div>
+</div>
+<div class="org-line"><div></div></div>
+
+<div class="section-label"><span>Three field commands</span></div>
+<div class="org-row">
+<div class="node primary rel" onclick="drawer('ssc')" style="min-width:185px">
+<div class="badge">PRIMARY VC CONTACT</div>
+<div class="nt" style="margin-top:6px">Space Systems Command</div>
+<div class="ns">SSC · Lt. Gen. Philip Garrant</div>
+<div class="ns">El Segundo, CA · $11B/yr</div>
+<div class="nb">Acquisition · development · fielding</div>
+</div>
+<div class="node" onclick="drawer('spoc')" style="min-width:185px">
+<div class="nt">Space Operations Command</div>
+<div class="ns">SpOC · Lt. Gen. David Miller</div>
+<div class="ns">Peterson SFB, CO</div>
+<div class="ns" style="margin-top:4px;font-size:10px">Operates space systems for warfighters</div>
+</div>
+<div class="node" onclick="drawer('starcom')" style="min-width:185px">
+<div class="nt">Space Training & Readiness</div>
+<div class="ns">STARCOM · Colorado</div>
+<div class="ns">Training, doctrine</div>
+<div class="ns" style="margin-top:4px;font-size:10px;color:#aaa">Limited VC relevance</div>
+</div>
+</div>
+<div class="org-line"><div></div></div>
+
+<div class="section-label"><span>Key acquisition offices under SSC</span></div>
+<div class="org-row">
+<div class="node" onclick="drawer('spacewerx')" style="min-width:155px;border-color:#16A34A;background:#ECFDF5">
+<div class="nt" style="color:#065F46">SpaceWERX</div>
+<div class="ns" style="color:#166534">Arthur Grijalva · $470M</div>
+<div class="nb" style="color:#16A34A">Best startup on-ramp</div>
+</div>
+<div class="node" onclick="drawer('sda')" style="min-width:155px">
+<div class="nt">Space Dev. Agency</div>
+<div class="ns">SDA · El Segundo, CA</div>
+<div class="nb">Fast contracts (2–3 yr)</div>
+</div>
+<div class="node" onclick="drawer('diu')" style="min-width:155px">
+<div class="nt">Defense Innovation Unit</div>
+<div class="ns">DIU · Mountain View, CA</div>
+<div class="nb">OTA · fastest DoD acq.</div>
+</div>
+<div class="node" onclick="drawer('afrl')" style="min-width:155px">
+<div class="nt">AFRL Space Vehicles</div>
+<div class="ns">Kirtland AFB, NM</div>
+<div class="nb" style="color:#888">R&D / early TRL</div>
+</div>
+</div>
+<div class="org-line"><div></div></div>
+
+<div class="section-label"><span>Program Executive Offices — where specific contracts live</span></div>
+<div class="org-row">
+<div class="node" onclick="drawer('peo-c2')" style="min-width:125px">
+<div class="nt" style="font-size:10px">PEO Space C2</div>
+<div class="ns">C2, BM, ground sw</div>
+</div>
+<div class="node" onclick="drawer('peo-gps')" style="min-width:125px">
+<div class="nt" style="font-size:10px">PEO GPS & NSS</div>
+<div class="ns">GPS III, OCX, MGUE</div>
+</div>
+<div class="node" onclick="drawer('peo-milsatcom')" style="min-width:125px">
+<div class="nt" style="font-size:10px">PEO MILSATCOM</div>
+<div class="ns">AEHF, WGS, PTS</div>
+</div>
+<div class="node" onclick="drawer('peo-launch')" style="min-width:125px">
+<div class="nt" style="font-size:10px">PEO Launch</div>
+<div class="ns">NSSL, range ops</div>
+</div>
+<div class="node" onclick="drawer('peo-scp')" style="min-width:125px">
+<div class="nt" style="font-size:10px">PEO Space Combat Power</div>
+<div class="ns">Golden Dome SBIs</div>
+</div>
+</div>
+</div>
+
+<!-- DOMAINS -->
+<div id="view-domains" class="view">
+<div class="domain-filters">
+<button class="dfilt active" onclick="setDF('all',this)" id="df-all">All</button>
+<button class="dfilt" onclick="setDF('budget',this)" id="df-budget">Budget</button>
+<button class="dfilt" onclick="setDF('winners',this)" id="df-winners">Winners</button>
+<button class="dfilt" onclick="setDF('ws',this)" id="df-ws">White space</button>
+</div>
+<div id="domain-list"></div>
+</div>
+
+<!-- ENGAGE -->
+<div id="view-engage" class="view">
+<div class="card">
+<div class="card-header green"><div class="card-title green">1. SpaceWERX — start here</div></div>
+<div class="card-body">spacewerx.us · Best first stop for any VC-backed company. Portfolio Managers aligned to each SSC program office. STRATFI ($3–15M) <b>requires VC co-investment</b> — SpaceWERX explicitly needs VCs as partners.<br><br>Process: Open Topic SBIR → Phase I → Phase II → TACFI ($375K–$2M) or STRATFI ($3–15M).<br><br><b>Current opportunity:</b> PY26.1 STRATFI Notice of Opportunity — deadline <b>May 29, 2026</b>. spacewerx.us/accelerate/stratfi-tacfi/</div>
+</div>
+<div class="card">
+<div class="card-header blue"><div class="card-title">2. SSC Front Door — formal introduction to program offices</div></div>
+<div class="card-body">sscfrontdoor.experience.crmforce.mil · Not a contract vehicle — an introduction mechanism. Fill out a capability brief, get routed to the right program office. Good for companies that have a product and want to find the right government customer within SSC.</div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">3. DIU Commercial Solutions Openings (CSOs)</div></div>
+<div class="card-body">diu.mil · Rolling solicitations — no SBIR/STTR required. Any commercial company can respond. Uses OTA contracts (faster, less bureaucratic). Space portfolio focused on SDA, SATCOM, and autonomous systems. DIU explicitly works with VCs and has investor relations staff. VICTUS HAZE (True Anomaly + Rocket Lab) was a DIU engagement.</div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">4. SDA solicitations — for satellite / payload companies</div></div>
+<div class="card-body">sda.mil/opportunities · RFPs for each PWSA tranche. Fastest DoD acquisition: 2–3 year delivery timelines. Active solicitation: T3TRK tracking layer (~54 satellites). SDA also participates in SpaceWERX SBIR. SDA contract win = strong Series A/B signal.</div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">5. OTA contracts via SSC — for mature technology (TRL 6+)</div></div>
+<div class="card-body">Other Transaction Authority bypasses standard FAR procurement. Used for Golden Dome SBIs, VICTUS HAZE, and other rapid programs. Monitor war.gov and SAM.gov for OTA solicitations. Best for companies ready to compete for specific programs now.</div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">6. AFRL Space Vehicles — for deep tech / early TRL (1–5)</div></div>
+<div class="card-body">Kirtland AFB, NM · afrl.af.mil · Funds basic research and co-invests in STRATFI. Provides test facilities (Starfire Optical Range, space environment chambers) that startups can access for technology demonstration. Lower dollar values but important for building the government relationship early.</div>
+</div>
+</div>
+
+<!-- PLAYBOOK -->
+<div id="view-playbook" class="view">
+<div style="font-size:11px;color:#666;margin-bottom:12px;line-height:1.6">A step-by-step playbook for Rosc to use Space Force relationships for deal flow, diligence, and portfolio support.</div>
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">🎯 Step 1 — Map your portfolio to a funded requirement</div></div>
+<div class="card-body">Before any engagement, answer: which PEO has a funded line item matching what this company does? If there's no funded requirement, there's no contract. SpaceWERX SBIR/STRATFI is the exception — it can create new requirements. Use SpaceWERX topic solicitations, SDA RFPs, and DIU CSOs to map fit before investing.</div>
+</div>
+<div class="card">
+<div class="card-header green"><div class="card-title green">🔑 Step 2 — Get into the SpaceWERX portfolio early</div></div>
+<div class="card-body">STRATFI explicitly requires VC co-investment — SpaceWERX needs VCs as partners. Arthur Grijalva has publicly said they are building investor relationships. A company with a STRATFI has government validation of technology — the best diligence signal available. <b>PY26.1 STRATFI deadline May 29, 2026.</b></div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">💰 Step 3 — Use STRATFI as a co-investment signal</div></div>
+<div class="card-body">When Space Force issues a STRATFI, it puts government money in alongside VC money. K2 Space ($60M STRATFI), Varda ($60M STRATFI), True Anomaly (SpaceWERX early engagement → $1B+ raised) all used this model. Track awards at spacewerx.us/news for deal flow signals.</div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">🤝 Step 4 — Build DIU relationships before you need them</div></div>
+<div class="card-body">DIU is the most VC-friendly DoD organization. Explicit investor relations programming. Mountain View office is the primary contact. DIU OnRamp Hubs host office hours at Capital Factory (Austin) and other innovation hubs. Show up — these are genuine relationship-building events, not bureaucratic formalities.</div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">📡 Step 5 — Monitor SDA solicitations for portfolio pipeline</div></div>
+<div class="card-body">SDA publishes RFPs publicly at sda.mil/opportunities. Each PWSA tranche is a separate competition. Winning an SDA tranche is a strong signal for a Series A/B — real customer, real revenue, 2–3 year delivery contract. Most realistic path to government revenue for a hardware startup in the space domain.</div>
+</div>
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">🚫 Step 6 — Know what Space Force will NOT commercialize</div></div>
+<div class="card-body">Space Force explicitly will NOT seek commercial solutions for: missile warning, combat power projection, electromagnetic warfare, and nuclear detonation detection. <b>Commercial sweet spots:</b> SATCOM, SDA, PNT, launch, C2 software, ISR data processing, cyber, and ground systems.</div>
+</div>
+<div class="card">
+<div class="card-header blue"><div class="card-title">👤 Key names to know</div></div>
+<div class="card-body">
+<div class="names-grid">
+<div class="name-card"><div class="name-title">Arthur Grijalva</div><div class="name-role">SpaceWERX Director · $470M budget · runs STRATFI program · primary VC relationship</div></div>
+<div class="name-card"><div class="name-title">Gen. B. Chance Saltzman</div><div class="name-role">Chief of Space Operations · sets commercial integration policy · watch his public remarks</div></div>
+<div class="name-card"><div class="name-title">Frank Calvelli</div><div class="name-role">Asst Sec Space Acquisition · co-signed Commercial Space Strategy · acquisition policy</div></div>
+<div class="name-card"><div class="name-title">Maj. Gen. Stephen Purdy</div><div class="name-role">Military Deputy for Space Acquisition · $24B+ R&D · gave investor talk Feb 2026: "payloads are the gap"</div></div>
+<div class="name-card"><div class="name-title">Col. Bryon McClain</div><div class="name-role">PEO Space Combat Power · runs Golden Dome SBI program · $3.2B in contracts</div></div>
+<div class="name-card"><div class="name-title">Lt. Gen. Philip Garrant</div><div class="name-role">SSC Commander · oversees all Space Force acquisition activity</div></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- DRAWER -->
+<div id="drawer" class="drawer">
+<div class="drawer-top">
+<div class="drawer-title" id="drawer-title"></div>
+<button class="drawer-close" onclick="closeDrawer()">×</button>
+</div>
+<div class="drawer-body" id="drawer-body"></div>
+</div>
+
+<script>
+var DD={
+cso:{t:'Chief of Space Operations — Gen. Saltzman',b:'Sets Space Force strategy. Publicly signals commercial integration direction — speeches at Space Symposium are must-reads. Key quote: "Demand for SATCOM is almost unlimited." Not a direct acquisition contact but his statements directly predict where program offices spend money.<br><br><b>VC relevance:</b> Track public remarks for forward signals on commercial priorities.'},
+secaf:{t:'Secretary of the Air Force — Troy Meink',b:'Civilian head of the Department of the Air Force. Frank Calvelli (Asst Sec for Space Acquisition) is the more operationally relevant contact — runs space acquisition policy and co-signed the Commercial Space Strategy.<br><br><b>VC relevance:</b> Low for deal flow. High for policy signals.'},
+asstsec:{t:'Asst Sec for Space Acquisition — Frank Calvelli',b:'Runs acquisition policy for all Space Force programs. Co-signed the Commercial Space Strategy in 2024. His "20 acquisition tenets" are the philosophy behind faster contracts.<br><br><b>VC relevance:</b> Medium-low for direct engagement. High for policy. Read his congressional testimony for forward budget signals.'},
+ssc:{t:'Space Systems Command (SSC)',b:'Primary acquisition arm of the Space Force. $11B annual budget. 10,000 employees. El Segundo, CA. Manages development, fielding, and sustainment of all Space Force capabilities.<br><br><b>SSC Front Door:</b> sscfrontdoor.experience.crmforce.mil — formal portal for commercial companies to introduce capabilities to program offices.'},
+spoc:{t:'Space Operations Command (SpOC)',b:'Operates Space Force capabilities for warfighters. Not an acquisition org — they receive what SSC delivers and operate it.<br><br><b>VC relevance:</b> Low for contracts. High for requirements. SpOC operators are end users — their pain points become SSC acquisition requirements.'},
+starcom:{t:'STARCOM',b:'Trains Space Force Guardians, develops doctrine. <b>VC relevance:</b> Very low unless your portfolio company builds training simulation or synthetic environments.'},
+spacewerx:{t:'SpaceWERX — best startup on-ramp',b:'$470M budget. Director: Arthur Grijalva. Manages SBIR/STTR, STRATFI/TACFI, and cohort programs.<br><br><b>TACFI:</b> $375K–$2M. Requires Phase II award + matching funds.<br><b>STRATFI:</b> $3M–$15M. Requires Phase II + VC co-investment. True Anomaly, Varda, K2 Space all scaled through STRATFI.<br><br><b>Current:</b> PY26.1 STRATFI NOO open — deadline May 29, 2026. spacewerx.us'},
+sda:{t:'Space Development Agency (SDA)',b:'Acquires PWSA — the LEO constellation of 300+ satellites for missile tracking and data transport. Fastest DoD acquisition: 2–3 year delivery timelines.<br><br><b>How to engage:</b> sda.mil/opportunities. T3TRK tracking layer (~54 sats) is current active solicitation.<br><br><b>VC signal:</b> SDA contract win = strong Series A/B signal.'},
+diu:{t:'Defense Innovation Unit (DIU)',b:'Designed specifically for commercial tech companies. Mountain View, CA. Uses OTA contracts — faster, less bureaucratic.<br><br>DIU explicitly works with VCs and has investor relations staff. VICTUS HAZE (True Anomaly + Rocket Lab) was a DIU engagement.<br><br>diu.mil'},
+afrl:{t:'AFRL Space Vehicles Directorate',b:'Kirtland AFB, NM. Basic and applied research. AFRL often co-invests in STRATFI contracts — Varda\'s $60M STRATFI included $15M from AFRL. Provides test facilities startups can access for demonstration.'},
+'peo-c2':{t:'PEO Space C2',b:'Manages Space C2 (SpC2) modernization and ground software. OCX cautionary tale lives here.<br><br><b>VC angle:</b> Ground software modernization is a priority. Cloud-native C2 platforms and multi-mission ground software are active requirements.'},
+'peo-gps':{t:'PEO GPS & Navigation Systems',b:'GPS III, GPS OCX ground system (troubled, $1B+), military GPS user equipment (MGUE).<br><br><b>VC angle:</b> Anti-jam/anti-spoof chipsets and alternative PNT (LEO-PNT) are active commercial opportunities.'},
+'peo-milsatcom':{t:'PEO MILSATCOM',b:'AEHF (nuclear C2), WGS (wideband), Protected Tactical Services (jam-resistant). CASR commercial SATCOM expansion managed here.<br><br><b>VC angle:</b> SATCOM interoperability software. New SATCOM vendors being onboarded for CASR 2026.'},
+'peo-launch':{t:'PEO Launch Enterprise',b:'NSSL contracts. SpaceX + ULA dominate heavy lift. NSSL Lane 1 more open to newer entrants.<br><br><b>VC angle:</b> Responsive launch operations software, range safety automation, rapid integration tooling.'},
+'peo-scp':{t:'PEO Space Combat Power — Col. Bryon McClain',b:'Manages Golden Dome space-based interceptors. 20 OTA contracts ($3.2B) to 12 firms awarded late 2025/early 2026. Initial capability 2028.<br><br><b>VC angle:</b> Kill chain software and battle management — the software layer nobody has claimed. Hardware covered by primes + True Anomaly.'}
+};
+
+var DOMAINS=[
+{id:'satcom',c:'#185FA5',t:'Satellite communications (SATCOM)',b:'~$3.7B',d:'#1 commercial integration priority. CASR expanding to SATCOM 2026.',sp:'SDA transport layer (PWSA) · Evolved Strategic SATCOM · Protected Tactical SATCOM (PTS) · CASR SATCOM pilot',w:'SpaceX/Starshield · SES · Viasat · Intelsat · L3Harris · Northrop Grumman',ws:'LEO SATCOM interoperability software — translation layer letting military systems hop between Starlink, SES O3b, and legacy MILSATCOM without manual reconfiguration. Nobody owns this cleanly.'},
+{id:'sda',c:'#185FA5',t:'Space domain awareness (SDA)',b:'~$1.5B',d:'Tracking every object in space. CASR SDA pilot March 2025 (4 companies, $1.1M, 90 days). Scaling 2026.',sp:'CASR SDA pilot · Space Surveillance Network upgrades · US-Japan SDA hosted payload (Feb 2025) · Commercial SDA wargames (14 companies)',w:'True Anomaly · Scout Space · LeoLabs · ExoAnalytic · Northrop Grumman · Raytheon',ws:'AI-powered conjunction analysis at scale — current tools can\'t handle 50,000+ tracked objects. Fusion engine ingesting radar, optical, and RF into one real-time threat picture.'},
+{id:'pnt',c:'#185FA5',t:'PNT — positioning, navigation & timing',b:'~$1.2B',d:'GPS underpins every US military system. Jamming is a live threat (Ukraine, Middle East). Space Force seeking commercial alternatives.',sp:'GPS III follow-on · GPS OCX ground system (troubled) · Military GPS User Equipment (MGUE Inc 1 & 2) · EPS-R enhanced polar payloads',w:'Lockheed Martin · Raytheon · L3Harris · Xona Space (LEO-PNT)',ws:'LEO-PNT constellation — GPS is jammable at MEO; LEO-based PNT provides stronger, harder-to-jam signals. Also: anti-jam/anti-spoof chipsets for ground and airborne users.'},
+{id:'golddome',c:'#993556',t:'Golden Dome — missile warning & intercept',b:'$13.8B reconciliation',d:'Largest new program in Space Force history. 20 OTA contracts ($3.2B) to 12 firms. Initial capability targeted 2028.',sp:'SBI prototype OTAs ($3.2B, 12 firms) · SDA tracking layer T3TRK (~54 sats) · HBTSS hypersonic tracking · Kill chain software integration',w:'Anduril · True Anomaly ($650M raised) · Turion Space · Quindar · GITAI USA · SpaceX · Lockheed Martin · Northrop Grumman · Raytheon · General Dynamics',ws:'Kill chain software — fuses sensor data, decides when to shoot, and coordinates 600+ satellites in real time. No single company owns this. Also: battle damage assessment from orbit.'},
+{id:'launch',c:'#BA7517',t:'Launch & space access',b:'~$2B+',d:'SpaceX and ULA dominate heavy lift. Responsiveness — launch on demand in hours — is the unsolved problem.',sp:'NSSL Phase 3 (SpaceX, ULA Vulcan) · NSSL Lane 1 (Rocket Lab, ABL) · Rocket Cargo · Tactically Responsive Space (TacRS)',w:'SpaceX · ULA · Rocket Lab · Blue Origin · ABL Space',ws:'Responsive launch operations software — scheduling, range safety, payload integration for 24-hour launch. Process is still manual. Also: in-space propulsion for rapid orbital transfer.'},
+{id:'c2',c:'#534AB7',t:'Command, control & battle management',b:'~$800M',d:'Software to command thousands of satellites in real time. Current systems built for dozens, not thousands. OCX is the cautionary tale.',sp:'Space C2 (SpC2) modernization · Golden Dome BM C2 · GPS OCX · JADC2 integration',w:'Palantir · Leidos · Raytheon · Booz Allen Hamilton · SAIC',ws:'Autonomous constellation management — at 1,000+ satellites (PWSA scale) human operators can\'t keep up. Software that autonomously re-tasks and re-configures satellites is a $500M+ gap.'},
+{id:'isr',c:'#185FA5',t:'Tactical ISR — surveillance & tracking',b:'~$900M',d:'Persistent wide-area surveillance of hypersonic threats from space. SDA Tranche 1 tracking satellites launched Sept 2025.',sp:'PWSA tracking layer (T1/T2/T3TRK, 54+ sats) · HBTSS hypersonic tracking · OPIR missile warning · WFOV sensing',w:'Millennium Space (Boeing) · L3Harris · Northrop Grumman · Slingshot Aerospace · HawkEye 360',ws:'On-orbit AI inference — pushing compute to the satellite itself to reduce latency from hours to seconds. Radiation-hardened edge AI chips for space barely exist commercially.'},
+{id:'cyber',c:'#534AB7',t:'Cyberspace operations & electronic warfare',b:'~$600M',d:'Every Space Force satellite is a cyber target. Moving toward Zero Trust for space systems. Wants commercial help.',sp:'Defensive cyber / Zero Trust for space systems · Protected Tactical Services (anti-jam) · Electronic warfare (classified) · Cyber workforce tools',w:'Booz Allen Hamilton · Leidos · ManTech · Shift5 · SpiderOak',ws:'Zero Trust for satellite ground systems — legacy perimeter security needs full rewrite. Multi-billion upgrade cycle. Small team with DoD cyber + space expertise could own a significant piece.'},
+{id:'ground',c:'#1D9E75',t:'Ground systems & software infrastructure',b:'~$1B+',d:'Most undersupplied domain by startups. Space Force actively pushing toward common, modular ground software away from siloed legacy systems.',sp:'GPS OCX ($1B+, troubled) · Space C2 ground infrastructure · Commercial ground station networks · SDA PWSA ground system',w:'Raytheon · Kratos Defense · General Dynamics · Leaf Space · Atlas Space Operations',ws:'Multi-mission ground software platform — cloud-native layer (think AWS for space ground systems) handling telemetry, commanding, and data processing across multiple missions. Kratos is hardware-heavy; a software-first version is wide open.'},
+{id:'mfg',c:'#BA7517',t:'Space manufacturing & industrial base',b:'Industrial base',d:'SDA wants 300+ PWSA satellites. US manufacturing base cannot produce at that rate. The "second valley of death."',sp:'SDA PWSA constellation (300+ sats over 5 yrs) · Golden Dome SBI volume production · TacRS rapid bus manufacturing',w:'SpaceX (Starshield) · Northrop Grumman · York Space Systems · Terran Orbital · Isembard (precision components)',ws:'Automated satellite assembly — robotic assembly lines for satellite buses at automotive scale don\'t exist. Also: radiation-hardened component supply chain — US dangerously dependent on a small number of rad-hard chip suppliers.'}
+];
+
+var domainFilter='all';
+var domainOpen={satcom:true,golddome:true,ground:true};
+
+function drawer(id){
+  var d=DD[id];if(!d)return;
+  document.getElementById('drawer-title').textContent=d.t;
+  document.getElementById('drawer-body').innerHTML=d.b;
+  document.getElementById('drawer').style.display='block';
+}
+function closeDrawer(){document.getElementById('drawer').style.display='none';}
+
+function setTab(v,btn){
+  document.querySelectorAll('.view').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(el){el.classList.remove('active');});
+  document.getElementById('view-'+v).classList.add('active');
+  btn.classList.add('active');
+}
+
+function setDF(f,btn){
+  domainFilter=f;
+  document.querySelectorAll('.dfilt').forEach(function(el){el.classList.remove('active');});
+  btn.classList.add('active');
+  renderDomains();
+}
+
+function toggleDomain(id){
+  if(domainOpen[id]) delete domainOpen[id]; else domainOpen[id]=true;
+  renderDomains();
+}
+
+function renderDomains(){
+  var el=document.getElementById('domain-list');
+  el.innerHTML='';
+  DOMAINS.forEach(function(d){
+    var open=!!domainOpen[d.id];
+    var div=document.createElement('div');
+    div.className='domain-item';
+    var tags=d.w.split(' · ').map(function(w){return'<span class="tag">'+w+'</span>';}).join('');
+    var bodyHTML='<div class="domain-desc">'+d.d+'</div>';
+    if(domainFilter==='all'||domainFilter==='budget'){
+      bodyHTML+='<div class="domain-section"><div class="domain-section-label" style="color:#185FA5">Budget / spending</div><div class="domain-section-body">'+d.sp+'</div></div>';
+    }
+    if(domainFilter==='all'||domainFilter==='winners'){
+      bodyHTML+='<div class="domain-section"><div class="domain-section-label" style="color:#993556">Contract winners</div><div class="tags">'+tags+'</div></div>';
+    }
+    if(domainFilter==='all'||domainFilter==='ws'){
+      bodyHTML+='<div class="ws-box"><div class="ws-label">VC white space</div><div class="ws-text">'+d.ws+'</div></div>';
+    }
+    div.innerHTML='<div class="domain-header" onclick="toggleDomain(\''+d.id+'\')">'
+      +'<div class="domain-bar" style="background:'+d.c+'"></div>'
+      +'<div class="domain-title">'+d.t+'</div>'
+      +(domainFilter==='all'||domainFilter==='budget'?'<div class="domain-budget">'+d.b+'</div>':'')
+      +'<div class="domain-chev" style="transform:'+(open?'rotate(180deg)':'none')+'">▼</div>'
+      +'</div>'
+      +'<div class="domain-body'+(open?' open':'')+'">'+bodyHTML+'</div>';
+    el.appendChild(div);
+  });
+}
+
+renderDomains();
+</script>
+</div>
+</body>
+</html>
