@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Space Force — VC Map 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;font-size:13px}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px}
+h1{font-size:18px;font-weight:600;margin-bottom:4px}
+.subtitle{font-size:12px;color:#666;margin-bottom:16px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tab{padding:6px 14px;border-radius:6px;border:1px solid #ddd;font-size:12px;cursor:pointer;background:#fff;color:#555;transition:all .15s}
+.tab.active{background:#1B3A6B;color:#fff;border-color:#1B3A6B;font-weight:500}
+.view{display:none}
+.view.active{display:block}
+
+/* org */
+.org-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.org-line{display:flex;justify-content:center;margin-bottom:4px}
+.org-line div{width:1px;height:14px;background:#ccc}
+.node{cursor:pointer;border-radius:8px;padding:9px 14px;text-align:center;transition:opacity .15s;border:1px solid #ddd;background:#fff}
+.node:hover{opacity:.85}
+.node.primary{border:2px solid #185FA5;background:#EFF6FF}
+.node.top{background:#EFF6FF;border-color:#185FA5}
+.node .nt{font-size:11px;font-weight:600;color:#1B3A6B}
+.node .ns{font-size:10px;color:#666;margin-top:2px}
+.node .nb{font-size:9px;color:#185FA5;font-weight:500;margin-top:3px}
+.badge{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#185FA5;color:#fff;font-size:9px;padding:1px 8px;border-radius:100px;white-space:nowrap;font-weight:500}
+.rel{position:relative}
+.section-label{display:flex;justify-content:center;margin-bottom:5px}
+.section-label span{background:#eee;font-size:10px;color:#888;padding:2px 12px;border-radius:100px}
+
+/* domains */
+.domain-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.dfilt{padding:4px 10px;border-radius:100px;border:1px solid #ddd;font-size:11px;cursor:pointer;background:#fff;color:#666}
+.dfilt.active{background:#1B3A6B;color:#fff;border-color:#1B3A6B;font-weight:500}
+.domain-item{margin-bottom:8px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;background:#fff}
+.domain-header{padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;background:#fff}
+.domain-header:hover{background:#fafafa}
+.domain-bar{width:3px;border-radius:2px;align-self:stretch;min-height:16px;flex-shrink:0}
+.domain-title{font-size:12px;font-weight:600;flex:1;color:#1a1a1a}
+.domain-budget{font-size:10px;color:#666;white-space:nowrap}
+.domain-chev{font-size:9px;color:#aaa;transition:transform .15s}
+.domain-body{padding:0 14px 12px;display:none}
+.domain-body.open{display:block}
+.domain-desc{font-size:11px;color:#555;line-height:1.6;margin-bottom:8px;padding-top:8px}
+.domain-section{background:#f8f8f8;border-radius:6px;padding:8px 10px;margin-bottom:6px}
+.domain-section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.domain-section-body{font-size:11px;color:#555;line-height:1.6}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tag{font-size:10px;padding:2px 8px;border-radius:100px;background:#EFF6FF;color:#185FA5}
+.ws-box{border-left:3px solid #3B6D11;background:#f0f7e8;border-radius:0 6px 6px 0;padding:8px 10px}
+.ws-label{font-size:10px;font-weight:600;color:#3B6D11;margin-bottom:3px}
+.ws-text{font-size:11px;color:#444;line-height:1.6}
+
+/* engage / playbook */
+.card{margin-bottom:8px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;background:#fff}
+.card-header{padding:9px 14px;background:#f5f5f5}
+.card-header.blue{background:#EFF6FF;border-bottom:1px solid #BFDBFE}
+.card-header.green{background:#ECFDF5;border-bottom:1px solid #A7F3D0}
+.card-title{font-size:12px;font-weight:600;color:#1B3A6B}
+.card-title.green{color:#065F46}
+.card-body{padding:10px 14px;font-size:11px;color:#444;line-height:1.7}
+.card-body b{color:#1a1a1a;font-weight:600}
+.names-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px;margin-top:4px}
+.name-card{background:#f8f8f8;border-radius:6px;padding:8px 10px}
+.name-title{font-size:11px;font-weight:600;color:#1B3A6B}
+.name-role{font-size:10px;color:#666;margin-top:2px;line-height:1.4}
+
+/* detail drawer */
+.drawer{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e0e0e0;padding:16px;max-height:55vh;overflow-y:auto;z-index:100;border-radius:12px 12px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.1)}
+.drawer-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.drawer-title{font-size:13px;font-weight:600;color:#1B3A6B}
+.drawer-close{background:none;border:none;font-size:20px;cursor:pointer;color:#888;padding:0 4px;line-height:1}
+.drawer-body{font-size:12px;color:#444;line-height:1.7}
+.drawer-body b{color:#1a1a1a;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>US Space Force — VC Landscape Map</h1>
+<div class="subtitle">May 2026 · For internal Rosc use · Personnel verified May 10, 2026 against current sources — verify before any outreach (commanders rotate; SSC reorg in progress through mid-2026)</div>
+<div style="font-size:10px;color:#888;margin-bottom:14px;line-height:1.5;background:#fefefe;border-left:3px solid #ddd;padding:6px 10px"><b>Note on terminology:</b> As of Sept 2025 (EO 14347), &ldquo;Department of War&rdquo; (DoW) is the authorized secondary title for the Department of Defense; Hegseth uses &ldquo;Secretary of War.&rdquo; This document uses DoD/SecDef throughout (the legal/statutory names) but you'll see DoW and war.gov in current news. Both refer to the same body.</div>
+
+<div class="tabs">
+<button class="tab active" onclick="setTab('org',this)">Full org chart</button>
+<button class="tab" onclick="setTab('domains',this)">Mission domains</button>
+<button class="tab" onclick="setTab('engage',this)">Engagement &amp; playbook</button>
+<button class="tab" onclick="setTab('peo',this)">PEO playbook</button>
+<button class="tab" onclick="setTab('structure',this)">USSF structure</button>
+<button class="tab" onclick="setTab('glossary',this)">Glossary</button>
+</div>
+
+<!-- ORG -->
+<div id="view-org" class="view active">
+<div style="font-size:11px;color:#666;margin-bottom:12px;line-height:1.6">The complete Space Force + related agency org structure. Click any node to expand. Everything from the President down to individual programs is inside this chart.</div>
+<style>
+.on{cursor:pointer;border-radius:8px;border:1px solid #ddd;background:#fff;transition:box-shadow .15s}
+.on:hover{box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.on-hdr{display:flex;align-items:center;gap:8px;padding:9px 12px}
+.on-bar{width:3px;border-radius:2px;align-self:stretch;min-height:16px;flex-shrink:0}
+.on-title{font-size:12px;font-weight:600;flex:1;color:#1a1a1a}
+.on-sub{font-size:10px;color:#666;margin-top:1px}
+.on-badge{font-size:9px;padding:1px 7px;border-radius:100px;background:#185FA5;color:#fff;font-weight:500;white-space:nowrap;flex-shrink:0}
+.on-chev{font-size:9px;color:#aaa;transition:transform .15s;flex-shrink:0}
+.on-body{display:none;padding:10px 12px 12px;border-top:1px solid #f0f0f0}
+.on-body.open{display:block}
+/* When a field command card is open, its body content gets cloned into the field-panel below the row */
+.field-cmd .on-body.open{display:none}
+.field-panel{display:none;background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:14px 16px;margin:8px 0 12px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.field-panel.open{display:block}
+.field-panel .on-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:0}
+.field-panel .on-cell{margin-top:0}
+.field-panel-title{font-size:12px;font-weight:600;color:#1B3A6B;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #f0f0f0}
+.on-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:6px}
+.on-cell{background:#f8f8f8;border-radius:6px;padding:8px 10px}
+.on-lbl{font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:3px}
+.on-txt{font-size:11px;color:#444;line-height:1.6}
+.on-ws{border-left:3px solid #3B6D11;background:#f0f7e8;border-radius:0 6px 6px 0;padding:8px 10px;margin-top:8px}
+.on-ws-lbl{font-size:10px;font-weight:600;color:#3B6D11;margin-bottom:3px}
+.on-ws-txt{font-size:11px;color:#444;line-height:1.6}
+.on-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.on-tag{font-size:10px;padding:2px 8px;border-radius:100px;border:1px solid #BFDBFE;background:#EFF6FF;color:#185FA5}
+.on-tag-r{font-size:10px;padding:2px 8px;border-radius:100px;border:1px solid #FECDD3;background:#FFF1F2;color:#9F1239}
+.on-tag-g{font-size:10px;padding:2px 8px;border-radius:100px;border:1px solid #BBF7D0;background:#ECFDF5;color:#065F46}
+.on-tag-a{font-size:10px;padding:2px 8px;border-radius:100px;border:1px solid #FCD34D;background:#FEF3C7;color:#78350F}
+.on-info{font-size:11px;border-radius:6px;padding:7px 10px;margin-bottom:8px;line-height:1.5}
+.vl{display:flex;justify-content:center;margin:3px 0}
+.vl div{width:1px;height:14px;background:#ccc}
+.or{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:3px}
+.pill{display:flex;justify-content:center;margin:4px 0}
+.pill span{background:#f0f0f0;font-size:10px;color:#888;padding:2px 12px;border-radius:100px}
+.track-wrap{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;align-items:flex-start;margin-bottom:3px}
+.track{display:flex;flex-direction:column;min-width:185px;max-width:215px;flex:1}
+.track-hdr{border-radius:8px 8px 0 0;padding:5px 10px;text-align:center}
+.track-hdr span{font-size:10px;font-weight:600;color:#fff}
+.sub-row{display:flex}
+.sub-row .on{flex:1;border-radius:0;border-top:none;min-width:0}
+.sub-row .on+.on{border-left:1px solid #ddd}
+</style>
+
+<!-- PRESIDENT -->
+<div class="or">
+<div style="background:#f0f0f0;border:1px solid #ccc;border-radius:8px;padding:7px 18px;text-align:center;min-width:180px">
+<div style="font-size:11px;font-weight:600;color:#333">President of the United States</div>
+<div style="font-size:10px;color:#666">Commander in Chief &middot; Donald Trump</div>
+</div>
+</div>
+<div class="vl"><div></div></div>
+
+<!-- SECDEF -->
+<div class="or"><div class="on" style="min-width:220px" onclick="tog(this)">
+<div class="on-hdr"><div class="on-bar" style="background:#555"></div>
+<div><div class="on-title">Secretary of Defense</div><div class="on-sub">Pete Hegseth &middot; Pentagon, DC &middot; also titled &ldquo;Secretary of War&rdquo;</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-grid">
+<div class="on-cell"><div class="on-lbl">Role</div><div class="on-txt">Civilian head of all US military and defense agencies. All combatant commands, military services, and defense agencies (DARPA, MDA, etc.) report through him to the President.</div></div>
+<div class="on-cell"><div class="on-lbl">How to track</div><div class="on-txt">Monitor congressional testimony, defense.gov press releases, and the annual National Defense Strategy. His approval of Golden Dome architecture in 2025 unlocked the $13.8B reconciliation surge. Every major acquisition decision and commercial space integration policy requires SecDef sign-off.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>Public affairs:</b> OSD Public Affairs &mdash; media@defense.gov (also media@war.gov)<br><b>Website:</b> defense.gov / war.gov &middot; @SecDef and @DeptofWar on X<br><b>Note:</b> Not a direct engagement target. Monitor defense.gov press releases and his congressional testimony.</div></div></div>
+</div></div>
+</div></div>
+<div class="vl"><div></div></div>
+<div class="pill"><span>Three parallel tracks under SecDef</span></div>
+
+<!-- THREE TRACKS -->
+<div class="track-wrap">
+
+<!-- TRACK A: DAF -->
+<div class="track">
+<div class="track-hdr" style="background:#185FA5"><span>DEPT OF THE AIR FORCE</span></div>
+<div class="on" style="border-radius:0;border-top:none" onclick="tog(this)">
+<div class="on-hdr" style="background:#EFF6FF"><div class="on-bar" style="background:#185FA5"></div>
+<div><div class="on-title" style="font-size:11px">Sec. of the Air Force</div><div class="on-sub">Troy Meink</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-grid">
+<div class="on-cell"><div class="on-lbl">Role</div><div class="on-txt">Civilian head of both the US Air Force and US Space Force. Oversees acquisition policy via the Asst Sec for Space Acquisition (currently Tom Ainsworth, acting; Erich Hernandez-Baquero nominated Apr 2026 to succeed Calvelli, who left the role at the change of administrations).</div></div>
+<div class="on-cell"><div class="on-lbl">Asst Sec Space Acquisition (SAF/SQ)</div><div class="on-txt"><b>Currently in transition.</b> Frank Calvelli (the founding Asst Sec) left the role at the change of administrations; he joined Redwire's board March 2026. <b>Tom Ainsworth</b> is performing the duties. <b>Erich Hernandez-Baquero</b> (Raytheon VP, Space ISR Systems) was nominated by Trump as the next permanent Asst Sec on April 22, 2026 &mdash; awaiting Senate confirmation.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>SAF/SQ office:</b> Tom Ainsworth (acting)<br><b>Nominee:</b> Erich Hernandez-Baquero (pending confirmation)<br><b>Read:</b> Senate Armed Services Committee testimony at armed-services.senate.gov</div></div></div>
+</div></div>
+</div>
+<div class="on" style="border-radius:0;border-top:none" onclick="tog(this)">
+<div class="on-hdr" style="padding:7px 10px"><div class="on-bar" style="background:#aaa"></div><div><div class="on-title" style="font-size:10px">US Air Force</div><div class="on-sub">Gen. Wilsbach, CSAF</div></div><div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-txt" style="font-size:10px">Separate service from Space Force. AFWERX (Air Force innovation arm) and AFRL have overlapping programs with SpaceWERX and co-invest in STRATFI contracts.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>AFWERX (Air Force innovation arm):</b> afwerx.af.mil &middot; contact@afwerx.af.mil<br><b>AFWERX Austin hub:</b> Capital Factory, 701 Brazos St, Austin TX</div></div></div>
+</div>
+<div style="display:flex;justify-content:center;padding:2px 0;background:#fff;border-left:1px solid #ddd;border-right:1px solid #ddd"><div style="width:1px;height:10px;background:#ccc"></div></div>
+<div class="on" style="border-radius:0 0 8px 8px;border-top:none;background:#dbeafe;border-left:3px solid #185FA5" onclick="tog(this)">
+<div class="on-hdr" style="padding:8px 10px;background:#dbeafe"><div class="on-bar" style="background:#185FA5"></div><div><div class="on-title" style="font-size:11px;color:#1B3A6B">Space Force (USSF)</div><div class="on-sub" style="color:#1B3A6B">Gen. Saltzman, CSO &middot; subject of this map</div></div><div class="on-chev">&#9660;</div></div>
+<div class="on-body" style="background:#EFF6FF"><div class="on-txt" style="font-size:10px">The Space Force detailed org structure continues in the tiers below: SSC, CFC, STARCOM, SpaceWERX, SDA, DIU, AFRL, and all PEOs.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>Space Force public affairs:</b> spaceforce.mil/About/Contact-Us<br><b>Email:</b> SF.PA@spaceforce.mil<br><b>CSO:</b> Gen. B. Chance Saltzman (since Nov 2022) &mdash; <b>Lt. Gen. Douglas Schiess nominated</b> to succeed him; expected change of command later 2026<br><b>Vice Chief of Space Operations:</b> Gen. Michael Guetlein (also Golden Dome Director)</div></div></div>
+</div>
+</div>
+
+<!-- TRACK B: IC -->
+<div class="track">
+<div class="track-hdr" style="background:#534AB7"><span>INTELLIGENCE COMMUNITY</span></div>
+<div class="on" style="border-radius:0;border-top:none" onclick="tog(this)">
+<div class="on-hdr" style="background:#EDE9FE"><div class="on-bar" style="background:#534AB7"></div>
+<div><div class="on-title" style="font-size:11px">Dir. of Nat&#39;l Intelligence</div><div class="on-sub">Tulsi Gabbard (DNI)</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-cell" style="margin-top:6px"><div class="on-lbl">Role</div><div class="on-txt">Heads all 18 US intelligence agencies. NRO reports to both DNI and SecDef (dual-hatted). DNI sets collection priorities; SecDef controls the budget.</div></div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>DNI public affairs:</b> dni.gov/index.php/newsroom/contact-ic<br><b>Note:</b> Not a direct engagement target for VC. Monitor IC priorities via dni.gov Annual Threat Assessment.</div></div></div>
+</div>
+<div class="on" style="border-radius:0;border-top:none" onclick="tog(this)">
+<div class="on-hdr" style="background:#EDE9FE"><div class="on-bar" style="background:#534AB7"></div>
+<div><div class="on-title" style="font-size:11px">NRO &mdash; Nat&#39;l Reconnaissance Office</div><div class="on-sub">Chris Scolese, Dir. (Roger Mason nominated to succeed) &middot; Chantilly VA</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#EDE9FE;color:#3730A3">The spy satellite agency. Builds/operates classified recon satellites for CIA, NSA, DIA. Budget ~$15&ndash;20B estimated. Plans to 4&times; satellite count within the decade.</div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">EOCL</div><div class="on-txt">Electro-Optical Commercial Layer &mdash; multi-billion 10-yr contract with Maxar/Vantor, Planet Labs, BlackSky. ~50% spent mid-2026.</div></div>
+<div class="on-cell"><div class="on-lbl">SCE CSO</div><div class="on-txt">Strategic Commercial Enhancements rolling contract. Awards (2026): EarthDaily ($1.2M EO), ICEYE (RF), Pixxel (hyperspectral). ~$400M/yr commercial budget. More awards expected late 2026.</div></div>
+<div class="on-cell"><div class="on-lbl">How to engage</div><div class="on-txt">SCE CSO at nro.gov &mdash; rolling submissions, no SBIR required. Contact: Pete Muend, Commercial Systems Program Office Director. Must be US company. ITAR essential.</div></div>
+<div class="on-cell"><div class="on-lbl">Budget signal</div><div class="on-txt">OMB tried to cut commercial budget in FY26 &mdash; Congress restored it. Strong bipartisan support. NRO + Space Force signed 2025 agreement to coordinate commercial ISR acquisition.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>Commercial Systems Program Office:</b> Pete Muend, Director (verified May 2026)<br><b>SCE CSO submissions:</b> nro.gov/Business-Opportunities<br><b>General inquiries:</b> nro.gov/Contact-Us &middot; publicaffairs@nro.mil<br><b>Address:</b> 14675 Lee Road, Chantilly VA 20151</div></div></div>
+</div>
+<div class="on-ws"><div class="on-ws-lbl">VC white space</div><div class="on-ws-txt">Multi-phenomenology fusion &mdash; combining optical, SAR, RF, and hyperspectral into a single integrated intelligence product. No startup currently does this end-to-end. NRO is the anchor customer for any VC-backed EO, hyperspectral, or geospatial AI company.</div></div>
+<div class="on-tags">
+<span class="on-tag">EOCL ($multibillion, 10yr)</span>
+<span class="on-tag">SCE CSO (rolling)</span>
+<span class="on-tag">Starshield $1.8B classified</span>
+</div>
+</div>
+</div>
+<div class="on" style="border-radius:0 0 8px 8px;border-top:none" onclick="tog(this)">
+<div class="on-hdr" style="background:#EDE9FE"><div class="on-bar" style="background:#534AB7"></div>
+<div><div class="on-title" style="font-size:11px">CIA / NSA / DIA / NGA</div><div class="on-sub">NRO&#39;s customers</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-txt" style="font-size:10px">NRO collects; these agencies analyze and act. NGA (National Geospatial-Intelligence Agency) also buys commercial imagery and geospatial AI directly &mdash; a second customer channel for earth observation startups.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>NGA commercial imagery:</b> nga.mil/partnerships<br><b>NGA InnoVision (tech office):</b> nga.mil/InnoVision<br><b>CIA ventures arm (In-Q-Tel):</b> iqt.org &mdash; CIA's nonprofit VC arm; backs dual-use tech companies<br><b>NSA:</b> nsa.gov/Research</div></div></div>
+</div>
+</div>
+
+<!-- TRACK C: OSD R&E -->
+<div class="track">
+<div class="track-hdr" style="background:#1D9E75"><span>OSD R&amp;E</span></div>
+<div class="on" style="border-radius:0;border-top:none" onclick="tog(this)">
+<div class="on-hdr" style="background:#ECFDF5"><div class="on-bar" style="background:#1D9E75"></div>
+<div><div class="on-title" style="font-size:11px">Under Sec. Defense for R&amp;E</div><div class="on-sub">Oversees DARPA and MDA</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-cell" style="margin-top:6px"><div class="on-txt" style="font-size:10px">The Pentagon&#39;s chief technology officer. Oversees all DoD R&amp;D including DARPA ($4B) and MDA ($13B+). Sets technology investment priorities across the department.</div></div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>USD R&amp;E office:</b> acqnotes.com/usd-re or ousd-re@defense.gov<br><b>Note:</b> Sets DoD-wide tech investment priorities. Monitor via USD R&amp;E annual report and R&amp;E priorities memoranda.</div></div></div>
+</div>
+<div class="on" style="border-radius:0;border-top:none" onclick="tog(this)">
+<div class="on-hdr" style="background:#ECFDF5"><div class="on-bar" style="background:#1D9E75"></div>
+<div><div class="on-title" style="font-size:11px">DARPA</div><div class="on-sub">$4B budget &middot; Arlington VA</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#ECFDF5;color:#065F46">The DoD&#39;s moonshot R&amp;D agency. ~220 program managers running 3&ndash;5 year research programs each. Funded the internet, GPS, stealth aircraft. $4B budget, much of it space-related.</div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">How to engage</div><div class="on-txt">Broad Agency Announcements (BAAs) at darpa.mil. Each office has an office-wide BAA for unsolicited ideas. No SBIR required. Best for TRL 1&ndash;4 with a genuinely novel approach.</div></div>
+<div class="on-cell"><div class="on-lbl">BRIDGES &mdash; clearance breakthrough</div><div class="on-txt">Cleared 19 companies in weeks (closed Sept 2025). SSC&#39;s COSMO office (Col. Trimailo) now scaling this model across Space Force &mdash; most significant barrier-reduction for non-traditional companies in recent memory.</div></div>
+</div>
+<div class="on-ws"><div class="on-ws-lbl">VC relevance</div><div class="on-ws-txt">DARPA is the pipeline for the next generation of space technology. Blackjack &rarr; SDA is the best example. A DARPA contract at Seed/Series A is the best technical de-risking signal available.</div></div>
+<div class="on-tags">
+<span class="on-tag-g">Blackjack &rarr; became SDA&#39;s PWSA</span>
+<span class="on-tag-g">BRIDGES &mdash; fast clearances</span>
+<span class="on-tag-g">Cislunar &mdash; deep space ops</span>
+<span class="on-tag-g">Glide Breaker &mdash; hypersonic intercept</span>
+<div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>Broad Agency Announcements:</b> darpa.mil/work-with-us/opportunities<br><b>Strategic Technology Office (space programs):</b> darpa.mil/about/offices/sto<br><b>General inquiries:</b> outreach@darpa.mil &middot; (703) 526-6630<br><b>Address:</b> 675 N Randolph St, Arlington VA 22203</div></div></div>
+</div>
+</div>
+<div class="on" style="border-radius:0 0 8px 8px;border-top:none" onclick="tog(this)">
+<div class="on-hdr" style="background:#ECFDF5"><div class="on-bar" style="background:#1D9E75"></div>
+<div><div class="on-title" style="font-size:11px">MDA &mdash; Missile Defense Agency</div><div class="on-sub">$13.2B FY26 &middot; Huntsville AL</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#ECFDF5;color:#065F46">Builds/sustains existing missile defense: GMD ($3.2B FY26), THAAD, Aegis BMD, Next-Generation Interceptor (NGI &mdash; Lockheed/L3Harris). Technical lead for Golden Dome.</div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">SHIELD IDIQ</div><div class="on-txt"><b>$151B over 10 years.</b> 2,440 approved vendors (out of 2,463 applicants). Any approved vendor competes for task orders across satellite manufacturing, sensors, interceptors, AI/battle management, launch, and ground infrastructure. Apply at SAM.gov.</div></div>
+<div class="on-cell"><div class="on-lbl">Golden Dome role</div><div class="on-txt">MDA is the technical lead for Golden Dome. Golden Dome = MDA&#39;s existing systems + space interceptors (PEO SCP) + SDA tracking + kill chain software. All integrated under Gen. Guetlein. Emphasizing AI/ML and open architectures.</div></div>
+</div>
+<div class="on-ws"><div class="on-ws-lbl">VC relevance</div><div class="on-ws-txt">SHIELD is the largest contract vehicle in space defense history. Any VC-backed company in the missile defense supply chain should be on the SHIELD vendor list &mdash; the application costs almost nothing and nearly everyone gets approved.</div></div>
+<div class="on-tags">
+<span class="on-tag-r">SHIELD $151B IDIQ &mdash; 2,440 vendors</span>
+<span class="on-tag-r">GMD $3.2B &middot; NGI &middot; THAAD &middot; Aegis</span>
+<span class="on-tag-r">MAA vehicle &mdash; C2/BM, EW, space</span>
+<div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>SHIELD vendor application:</b> SAM.gov (search "SHIELD")<br><b>MDA industry portal:</b> mda.mil/business/solicitations.html<br><b>Public affairs:</b> mda.pa@mda.mil &middot; (256) 450-3300<br><b>Address:</b> 5700 18th St, Redstone Arsenal AL 35898<br><b>Key contact:</b> MAA vehicle solicitations at mda.mil/business</div></div></div>
+</div>
+</div>
+</div>
+
+</div><!-- end track-wrap -->
+
+<div class="vl"><div></div></div>
+<div class="pill"><span>Space Force field commands (under CSO / Department of the Air Force)</span></div>
+
+<div class="or field-row">
+<div class="on field-cmd" style="min-width:185px;max-width:215px;border-color:#185FA5;border-width:2px" onclick="if(togField(this))drill('ssc')">
+<div class="on-hdr" style="background:#EFF6FF">
+<div class="on-bar" style="background:#185FA5"></div>
+<div><div class="on-title">Space Systems Command</div><div class="on-sub">SSC &middot; Lt. Gen. Philip Garrant &middot; El Segundo CA &middot; <span style="color:#185FA5;font-weight:500">click to expand &darr;</span></div></div>
+<span class="on-badge">PRIMARY VC CONTACT</span>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#EFF6FF;color:#1B3A6B">Primary acquisition arm. $11B annual budget. 10,000 employees. <b>Reorganizing into 9 Portfolio Acquisition Executive (PAE) offices through mid-2026</b> &mdash; SDA likely folds into the new Missile Warning &amp; Tracking PAE under Sandhoo. The remaining 3 PAEs (Space Control; EW/Cyber/Orbital Warfare; Integration) coming June 2026. Full operating capability target Nov 27, 2026 per Pentagon acquisition czar Michael Duffey. <b>This is the door you knock on.</b></div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">SSC Front Door</div><div class="on-txt">sscfrontdoor.experience.crmforce.mil &mdash; formal portal for commercial companies to introduce capabilities to program offices.</div></div>
+<div class="on-cell"><div class="on-lbl">Key sub-orgs</div><div class="on-txt">SpaceWERX (startup on-ramp), SDA (fast satellite contracts), DIU (commercial OTA), AFRL (R&amp;D), and 5+ PEOs. All expanded below.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>SSC Front Door (commercial capabilities):</b> sscfrontdoor.experience.crmforce.mil<br><b>Public affairs:</b> ssc.spaceforce.mil/Connect-With-Us &middot; SSC.PA@spaceforce.mil<br><b>Address:</b> 483 N Aviation Blvd, El Segundo CA 90245 (Los Angeles AFB)<br><b>Commander:</b> Lt. Gen. Philip Garrant</div></div></div>
+</div>
+</div>
+</div>
+<div class="on field-cmd" style="min-width:185px;max-width:215px" onclick="if(togField(this))drill('cfc')">
+<div class="on-hdr"><div class="on-bar" style="background:#888"></div>
+<div><div class="on-title">Combat Forces Command</div><div class="on-sub">CFC (formerly SpOC) &middot; Lt. Gen. Gregory Gagnon &middot; Peterson SFB CO &middot; <span style="color:#185FA5;font-weight:500">click to expand &darr;</span></div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#fef3c7;color:#78350F;font-size:10px">Renamed from SpOC to Combat Forces Command (CFC) on Nov 3, 2025 under Lt. Gen. Gregory Gagnon &mdash; aligns name with warfighting mission.</div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">What it does</div><div class="on-txt">Operates Space Force capabilities for warfighters &mdash; commands satellites day-to-day, provides GPS/SATCOM/missile warning to military commanders. ~12,000 Guardians and Airmen. The users; SSC is the buyer.</div></div>
+<div class="on-cell"><div class="on-lbl">Why it matters</div><div class="on-txt">CFC operators are the end users of everything SSC buys. Their pain points become acquisition requirements. Getting access through SpaceWERX cohorts gives portfolio companies real user feedback before investing in development.</div></div>
+<div class="on-cell" style="background:#EFF6FF"><div class="on-lbl">&#128222; POC</div><div class="on-txt"><b>Commander:</b> Lt. Gen. Gregory Gagnon (assumed Nov 3, 2025)<br><b>Public affairs:</b> Peterson SFB &middot; spoc.spaceforce.mil (site transitioning)<br><b>Email:</b> SpOC.PA@spaceforce.mil<br><b>Address:</b> 150 Vandenberg St Ste 1105, Peterson SFB, Colorado Springs CO 80914</div></div>
+</div>
+</div>
+</div>
+<div class="on field-cmd" style="min-width:185px;max-width:215px" onclick="togField(this)">
+<div class="on-hdr"><div class="on-bar" style="background:#aaa"></div>
+<div><div class="on-title">STARCOM</div><div class="on-sub">Maj. Gen. James E. Smith &middot; Patrick SFB FL &middot; <span style="color:#185FA5;font-weight:500">click to expand &darr;</span></div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">VC relevance</div><div class="on-txt">Trains Space Force Guardians and develops doctrine. Develops doctrinal publications and training curricula for space operations. Permanent HQ moved to Patrick SFB FL (Smith assumed command July 18, 2025). OTTI/SWARM digital training initiative is creating real demand for sim/training vendors.</div></div>
+<div class="on-cell" style="background:#EFF6FF"><div class="on-lbl">&#128222; POC</div><div class="on-txt"><b>Commander:</b> Maj. Gen. James E. Smith (since July 18, 2025)<br><b>Public affairs:</b> starcom.spaceforce.mil<br><b>Email:</b> STARCOM.PA@spaceforce.mil<br><b>Address:</b> Patrick Space Force Base, Florida</div></div>
+</div>
+</div>
+</div>
+<div class="on field-cmd" style="min-width:185px;max-width:215px;border-style:dashed;opacity:0.7" onclick="togField(this)">
+<div class="on-hdr"><div class="on-bar" style="background:#aaa"></div>
+<div><div class="on-title">Space Futures Command (cancelled)</div><div class="on-sub">Replaced by SF/S9 staff group &middot; <span style="color:#185FA5;font-weight:500">click to expand &darr;</span></div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#f5f5f5;color:#444;font-size:10px"><b>Status:</b> Announced Feb 2024 by CSO Saltzman as the planned 4th field command (Bythewood originally tapped to lead it). Trump admin / SecAF Meink halted activation. &ldquo;Futures Command is dead&rdquo; per Pentagon sources Oct 2025. Functions absorbed into <b>SF/S9 Force Design and Analysis</b> staff group at HQ (established Apr 21, 2026 by Saltzman memo).</div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">What SF/S9 does</div><div class="on-txt">HQ staff group (not a field command). Force Design Architect role for the CSO. Forecasts future operating environment, develops/validates concepts, maintains the &ldquo;Objective Force&rdquo; 15-year plan, prioritizes S&amp;T. Coordinates SWAC, parts of SpD 10 (wargaming), and other elements without absorbing them.</div></div>
+<div class="on-cell"><div class="on-lbl">VC relevance</div><div class="on-txt">Low. Not an acquisition body. Useful as a forward-signal source &mdash; SF/S9 outputs (objective force docs, wargaming results) telegraph what SSC will be funded to buy 5&ndash;10 years out.</div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="field-panel" id="field-panel"></div>
+
+<div id="drill-cfc" style="display:none">
+<div class="vl"><div></div></div>
+<div class="pill"><span>Operational deltas under CFC &mdash; the mission units (Col-led, ~400 Guardians each)</span></div>
+
+<div class="or" style="gap:6px">
+<div class="on" style="min-width:128px;max-width:155px;border-color:#16A34A;background:#ECFDF5" onclick="tog(this)">
+<div class="on-hdr" style="padding:7px 9px;background:#ECFDF5"><div class="on-bar" style="background:#16A34A"></div>
+<div><div class="on-title" style="font-size:10px;color:#065F46">MD 2 &mdash; SDA</div><div class="on-sub" style="color:#166534">Space Domain Awareness</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-cell" style="margin-top:4px"><div class="on-txt" style="font-size:10px">Tracks all human-made objects LEO &rarr; GEO &rarr; deep space. Also weather sat obs for DoD via NOAA partnership. <b>Converted Oct 2024.</b></div></div>
+<div class="on-tags"><span class="on-tag-g">15th SSS &middot; 18th SDS &middot; 19th SDS &middot; 20th SSS</span><span class="on-tag-g">Paired w/ SYD 810</span><span class="on-tag-g">Peterson SFB</span></div>
+</div>
+</div>
+
+<div class="on" style="min-width:128px;max-width:155px;border-color:#16A34A;background:#ECFDF5" onclick="tog(this)">
+<div class="on-hdr" style="padding:7px 9px;background:#ECFDF5"><div class="on-bar" style="background:#16A34A"></div>
+<div><div class="on-title" style="font-size:10px;color:#065F46">MD 3 &mdash; EW</div><div class="on-sub" style="color:#166534">Electronic Warfare</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-cell" style="margin-top:4px"><div class="on-txt" style="font-size:10px">Counter-comms, jamming, EW for space systems. <b>One of two original IMD prototypes (Sept 2023).</b></div></div>
+<div class="on-tags"><span class="on-tag-g">First IMD prototype</span><span class="on-tag-g">Peterson SFB</span></div>
+</div>
+</div>
+
+<div class="on" style="min-width:128px;max-width:155px;border-color:#16A34A;background:#ECFDF5" onclick="tog(this)">
+<div class="on-hdr" style="padding:7px 9px;background:#ECFDF5"><div class="on-bar" style="background:#16A34A"></div>
+<div><div class="on-title" style="font-size:10px;color:#065F46">MD 4 &mdash; Missile Warning</div><div class="on-sub" style="color:#166534">Strategic + theater MW/T</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-cell" style="margin-top:4px"><div class="on-txt" style="font-size:10px">Operates 3 OPIR constellations + 2 ground radar types. Provides MW to US + intl partners. <b>Converted Oct 2024.</b></div></div>
+<div class="on-tags"><span class="on-tag-g">Paired w/ SYD 84</span><span class="on-tag-g">Buckley SFB</span><span class="on-tag-g">Col. Schmitt</span></div>
+</div>
+</div>
+
+<div class="on" style="min-width:128px;max-width:155px" onclick="tog(this)">
+<div class="on-hdr" style="padding:7px 9px"><div class="on-bar" style="background:#888"></div>
+<div><div class="on-title" style="font-size:10px">SpDelta 5 &mdash; C2</div><div class="on-sub">Command &amp; Control</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-cell" style="margin-top:4px"><div class="on-txt" style="font-size:10px">Combined Force Space Component Command operations. Future IMD conversion likely.</div></div>
+<div class="on-tags"><span class="on-tag">Vandenberg SFB</span><span class="on-tag">Pending IMD</span></div>
+</div>
+</div>
+
+<div class="on" style="min-width:128px;max-width:155px" onclick="tog(this)">
+<div class="on-hdr" style="padding:7px 9px"><div class="on-bar" style="background:#888"></div>
+<div><div class="on-title" style="font-size:10px">SpDelta 6 &mdash; Cyber</div><div class="on-sub">Cyberspace Ops</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-cell" style="margin-top:4px"><div class="on-txt" style="font-size:10px">Defensive cyber for space mission systems. <b>Unlikely to convert</b> &mdash; Miller said cyber doesn&#39;t fit IMD model.</div></div>
+<div class="on-tags"><span class="on-tag">Schriever SFB</span><span class="on-tag">No IMD planned</span></div>
+</div>
+</div>
+
+<div class="on" style="min-width:128px;max-width:155px" onclick="tog(this)">
+<div class="on-hdr" style="padding:7px 9px"><div class="on-bar" style="background:#888"></div>
+<div><div class="on-title" style="font-size:10px">SpDelta 7 &mdash; ISR</div><div class="on-sub">Intel, Surveil, Recon</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-cell" style="margin-top:4px"><div class="on-txt" style="font-size:10px">Global ISR ops to characterize/target adversary space capabilities. <b>Unlikely to convert.</b></div></div>
+<div class="on-tags"><span class="on-tag">Peterson SFB</span><span class="on-tag">No IMD planned</span></div>
+</div>
+</div>
+
+<div class="on" style="min-width:128px;max-width:155px" onclick="tog(this)">
+<div class="on-hdr" style="padding:7px 9px"><div class="on-bar" style="background:#888"></div>
+<div><div class="on-title" style="font-size:10px">SpDelta 8 &mdash; SATCOM</div><div class="on-sub">SATCOM &amp; Nav Warfare</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-cell" style="margin-top:4px"><div class="on-txt" style="font-size:10px">PNT subunits hived off into MD 31 (2023). SATCOM portion remains. <b>Future SATCOM IMD announced.</b></div></div>
+<div class="on-tags"><span class="on-tag">Schriever SFB</span><span class="on-tag">Pending IMD</span></div>
+</div>
+</div>
+
+<div class="on" style="min-width:128px;max-width:155px" onclick="tog(this)">
+<div class="on-hdr" style="padding:7px 9px"><div class="on-bar" style="background:#888"></div>
+<div><div class="on-title" style="font-size:10px">SpDelta 9 &mdash; Orbital Warfare</div><div class="on-sub">RPO, on-orbit defense</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-cell" style="margin-top:4px"><div class="on-txt" style="font-size:10px">The actual fight in orbit &mdash; rendezvous &amp; proximity ops, on-orbit defense. <b>Future IMD conversion announced.</b></div></div>
+<div class="on-tags"><span class="on-tag">Schriever SFB</span><span class="on-tag">Pending IMD</span></div>
+</div>
+</div>
+
+<div class="on" style="min-width:128px;max-width:155px;border-color:#16A34A;background:#ECFDF5" onclick="tog(this)">
+<div class="on-hdr" style="padding:7px 9px;background:#ECFDF5"><div class="on-bar" style="background:#16A34A"></div>
+<div><div class="on-title" style="font-size:10px;color:#065F46">MD 31 &mdash; PNT</div><div class="on-sub" style="color:#166534">GPS / nav / timing</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-cell" style="margin-top:4px"><div class="on-txt" style="font-size:10px">The first IMD (Sept 2023). Created by hiving off GPS/PNT operators from Delta 8.</div></div>
+<div class="on-tags"><span class="on-tag-g">Paired w/ SYD 31</span><span class="on-tag-g">Schriever SFB</span><span class="on-tag-g">Col. Menschner</span></div>
+</div>
+</div>
+</div>
+
+<div style="background:#f8f8f8;border:1px solid #e0e0e0;border-radius:6px;padding:8px 10px;margin:8px 0 0;font-size:10px;color:#555;line-height:1.5">
+<b>Below deltas:</b> squadrons (Lt Col), flights, sections. <b>Also under CFC:</b> Space Base Deltas (SBD 1, 2, 3, 41) and Space Launch Deltas (SLD 30, 45). See the &ldquo;USSF structure&rdquo; tab for ranks, the sale flow, and the full breakdown.
+</div>
+</div>
+
+<div id="drill-ssc" style="display:none">
+<div class="vl"><div></div></div>
+<div class="pill"><span>Key acquisition offices under SSC</span></div>
+
+<div class="or">
+<div class="on" style="min-width:148px;max-width:172px;border-color:#16A34A;background:#ECFDF5" onclick="tog(this)">
+<div class="on-hdr" style="background:#ECFDF5"><div class="on-bar" style="background:#16A34A"></div>
+<div><div class="on-title" style="color:#065F46">SpaceWERX</div><div class="on-sub" style="color:#166534">Arthur Grijalva &middot; $470M</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#ECFDF5;color:#065F46">Best startup on-ramp. Manages SBIR/STTR, STRATFI ($3&ndash;15M requires VC co-investment), TACFI ($375K&ndash;$2M), and cohort programs.</div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">STRATFI</div><div class="on-txt">$3M&ndash;$15M. Requires Phase II SBIR + <b>VC co-investment</b>. SpaceWERX explicitly needs VCs as partners. PY26.1 deadline: <b>May 29, 2026</b>. K2 Space, Varda, True Anomaly all scaled through STRATFI.</div></div>
+<div class="on-cell"><div class="on-lbl">VC signal</div><div class="on-txt">A STRATFI award is the best government validation signal available. SpaceWERX Portfolio Managers aligned to each SSC program office &mdash; they generate demand signals and connect portfolio companies to requirements.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>Director:</b> Arthur Grijalva &mdash; arthur.grijalva@afrl.af.mil<br><b>STRATFI/TACFI inquiries:</b> spacewerx.us/contact &middot; spacewerx@afrl.af.mil<br><b>LinkedIn:</b> linkedin.com/in/arthurgrijalva<br><b>Website:</b> spacewerx.us<br><b>Address:</b> Los Angeles AFWERX Hub, 83 S Raymond Ave Ste 600, Pasadena CA 91105<br><b>Note:</b> Email format changed to @afrl.af.mil effective Jan 19, 2026</div></div></div>
+</div>
+</div>
+</div>
+<div class="on" style="min-width:148px;max-width:172px" onclick="tog(this)">
+<div class="on-hdr"><div class="on-bar" style="background:#185FA5"></div>
+<div><div class="on-title">Space Dev. Agency</div><div class="on-sub">SDA &middot; El Segundo CA</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#EFF6FF;color:#1B3A6B">Fastest DoD acquisition: 2&ndash;3 year delivery timelines. Building PWSA &mdash; 300+ LEO satellites. Each tranche is a separate open competition.</div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">How to engage</div><div class="on-txt">sda.mil/opportunities &mdash; RFPs for each PWSA tranche. Active: T3TRK tracking layer (~54 sats). Also participates in SpaceWERX SBIR for components.</div></div>
+<div class="on-cell"><div class="on-lbl">VC signal</div><div class="on-txt">SDA contract = strong Series A/B signal &mdash; real customer, real revenue, real 2&ndash;3 year timeline. Most realistic path to government revenue for a hardware startup.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>Acting Director:</b> Dr. Gurpartap "GP" Sandhoo (since Sept 2025)<br><b>Likely path:</b> Sandhoo to dual-hat as Missile Warning &amp; Tracking PAE; SDA may be absorbed into broader portfolio structure (status TBD)<br><b>Outreach / industry:</b> USSF.SDA.Outreach@mail.mil<br><b>Solicitations:</b> sda.mil/opportunities<br><b>Website:</b> sda.mil<br><b>Address:</b> 3030 Defense Pentagon, Washington DC 20301</div></div></div>
+</div>
+<div class="on-tags"><span class="on-tag">PWSA Tracking Layer</span><span class="on-tag">T3TRK awarded $3.5B Dec 2025 (4 vendors)</span><span class="on-tag">T3 Transport halted in FY26 budget</span><span class="on-tag">HALO Europa active</span></div>
+</div>
+</div>
+<div class="on" style="min-width:148px;max-width:172px" onclick="tog(this)">
+<div class="on-hdr"><div class="on-bar" style="background:#534AB7"></div>
+<div><div class="on-title">Defense Innovation Unit</div><div class="on-sub">DIU &middot; Mountain View CA</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#EDE9FE;color:#3730A3">Most VC-friendly DoD organization. OTA contracts, rolling CSO solicitations, no SBIR required. Now a Department of War Field Activity (Jan 2026) &mdash; reports to SecDef, operationally aligned with CTO/R&amp;E.</div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">How to engage</div><div class="on-txt">diu.mil &mdash; Commercial Solutions Openings (CSOs). DIU OnRamp Hubs at Capital Factory (Austin) host office hours. Build the relationship before you need it.</div></div>
+<div class="on-cell"><div class="on-lbl">Space focus 2025&ndash;26</div><div class="on-txt">SDA, SATCOM integration, autonomous systems. VICTUS HAZE (True Anomaly + Rocket Lab) was a DIU engagement. DIU contracts often lead to larger follow-on work.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>Director:</b> Owen West (assumed March 2026; DOGE veteran, Marine, Goldman energy trader)<br><b>Principal Deputy Director / Chief Commercial Officer:</b> Matthew Shortal<br><b>Senior Adviser:</b> Steve Butow<br><b>Space portfolio PM:</b> contact via space@diu.mil<br><b>General inquiries:</b> diu.mil/contact-DIU &middot; contact@diu.mil<br><b>Email format:</b> FLast@diu.mil (first initial + last name, e.g. owest@diu.mil)<br><b>HQ:</b> 230 RT Jones Rd, Mountain View CA 94043<br><b>Austin hub:</b> Capital Factory, 701 Brazos St, Austin TX</div></div></div>
+</div>
+</div>
+</div>
+<div class="on" style="min-width:148px;max-width:172px" onclick="tog(this)">
+<div class="on-hdr"><div class="on-bar" style="background:#1D9E75"></div>
+<div><div class="on-title">AFRL Space Vehicles</div><div class="on-sub">Kirtland AFB NM</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-grid">
+<div class="on-cell"><div class="on-lbl">What it does</div><div class="on-txt">Basic and applied R&amp;D at TRL 1&ndash;5. Often co-invests in STRATFI &mdash; Varda&#39;s $60M STRATFI included $15M from AFRL. Provides test facilities (Starfire Optical Range, space environment chambers) to startups.</div></div>
+<div class="on-cell"><div class="on-lbl">VC relevance</div><div class="on-txt">Medium. Best for early-stage companies that need to prove technology before competing for SSC or SDA contracts.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>Space Vehicles Directorate:</b> afrl.af.mil/Divisions/Space-Vehicles-Directorate<br><b>Director:</b> Col. Richard R. Beckman (Space Vehicles)<br><b>Inquiries:</b> AFRL.RV@us.af.mil<br><b>Address:</b> 3550 Aberdeen Ave SE, Kirtland AFB NM 87117<br><b>Test facility access:</b> Contact AFRL.RV.TechTransfer@us.af.mil for Starfire Optical Range and space environment chamber access</div></div></div>
+</div></div>
+</div>
+<div class="on" style="min-width:148px;max-width:172px;border-color:#BA7517;background:#FEF3C7" onclick="tog(this)">
+<div class="on-hdr" style="background:#FEF3C7"><div class="on-bar" style="background:#BA7517"></div>
+<div><div class="on-title" style="color:#78350F">Commercial Space Office</div><div class="on-sub" style="color:#78350F">Col. Rich Kniseley &middot; CASR lead</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#FEF3C7;color:#78350F">SSC&#39;s commercial integration arm. Owns CASR (Commercial Augmentation Space Reserve), commercial SATCOM/SDA wargames, and the &ldquo;buy commercial first&rdquo; policy.</div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">What it does</div><div class="on-txt">Coordinates Space Force&#39;s commercial purchases across mission areas. CASR pre-negotiates contracts with commercial providers that can be activated during a crisis. Started with SDA (4 companies, March 2025), expanding to SATCOM in 2026.</div></div>
+<div class="on-cell"><div class="on-lbl">VC relevance</div><div class="on-txt"><b>High.</b> Kniseley is the explicit commercial integration lead. CASR is a real on-ramp for portfolio companies in SATCOM, SDA, and ISR. New vendor onboarding active 2026.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>Director:</b> Col. Rich Kniseley<br><b>SSC Front Door:</b> sscfrontdoor.experience.crmforce.mil (select commercial integration)<br><b>Watch:</b> Kniseley&#39;s Space Symposium and AFA Warfare Symposium remarks for commercial priorities</div></div></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="vl"><div></div></div>
+<div class="pill"><span>Program Executive Offices under SSC &mdash; where specific contracts originate</span></div>
+
+<div class="or">
+<div class="on" style="min-width:128px;max-width:152px" onclick="tog(this)">
+<div class="on-hdr" style="padding:8px 10px"><div class="on-bar" style="background:#185FA5"></div>
+<div><div class="on-title" style="font-size:10px">PEO Space C2</div><div class="on-sub">~$800M</div></div><div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-grid">
+<div class="on-cell"><div class="on-lbl">Programs</div><div class="on-txt">Space C2 (SpC2) modernization. GPS OCX ground system (troubled, $1B+). Golden Dome battle management. JADC2 integration.</div></div>
+<div class="on-cell"><div class="on-lbl">VC angle</div><div class="on-txt">Most software-heavy PEO. OCX failure is driving push toward cloud-native approaches. Autonomous constellation management (~$500M+ gap) is unsolved.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>PEO:</b> Ms. Shannon Pallone (Battle Mgmt, C2, Comm)<br><b>SSC Front Door:</b> sscfrontdoor.experience.crmforce.mil (select C2/ground systems)<br><b>Email:</b> SSC.BC@us.af.mil<br><b>SpaceWERX track:</b> Contact SpaceWERX for C2 modernization SBIR opportunities</div></div></div>
+</div>
+<div class="on-tags"><span class="on-tag">SpC2 modernization</span><span class="on-tag">Golden Dome BM SW</span></div>
+</div>
+</div>
+<div class="on" style="min-width:128px;max-width:152px" onclick="tog(this)">
+<div class="on-hdr" style="padding:8px 10px"><div class="on-bar" style="background:#185FA5"></div>
+<div><div class="on-title" style="font-size:10px">PEO GPS &amp; NSS</div><div class="on-sub">~$1.2B</div></div><div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-grid">
+<div class="on-cell"><div class="on-lbl">Programs</div><div class="on-txt">GPS III (Lockheed). OCX ground system (Raytheon). MGUE Inc 1 &amp; 2 (L3Harris). EPS-R polar payloads.</div></div>
+<div class="on-cell"><div class="on-lbl">VC angle</div><div class="on-txt">Most conservative PEO &mdash; dominated by two primes. VC opportunity is adjacent: anti-jam/anti-spoof chipsets and LEO-PNT (Xona Space).</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>PEO:</b> Ms. Erin Carper (assumed early 2026; replaced Mr. Cordell DeLaPena, SES)<br><b>SSC Front Door:</b> sscfrontdoor.experience.crmforce.mil (select PNT/navigation)<br><b>Email:</b> SSC.GP@us.af.mil<br><b>MGUE procurement contacts:</b> PEO GPS, Los Angeles AFB</div></div></div>
+</div>
+<div class="on-tags"><span class="on-tag">GPS III follow-on</span><span class="on-tag">MGUE equipment</span></div>
+</div>
+</div>
+<div class="on" style="min-width:128px;max-width:152px" onclick="tog(this)">
+<div class="on-hdr" style="padding:8px 10px"><div class="on-bar" style="background:#185FA5"></div>
+<div><div class="on-title" style="font-size:10px">PEO MILSATCOM</div><div class="on-sub">~$3.7B</div></div><div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-grid">
+<div class="on-cell"><div class="on-lbl">Programs</div><div class="on-txt">AEHF (nuclear command SATCOM). WGS (wideband backbone, 11 sats). Protected Tactical Services (PTS, jam-resistant). CASR commercial SATCOM expansion. SDA transport layer coordination.</div></div>
+<div class="on-cell"><div class="on-lbl">VC angle</div><div class="on-txt">Most commercially open PEO. CASR is a genuine on-ramp &mdash; new SATCOM vendors being onboarded 2026. SATCOM interoperability software (switching between Starlink, SES, legacy MILSATCOM) is unsolved.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>PEO:</b> Ms. Shannon Pallone / MILSATCOM office<br><b>CASR commercial onboarding:</b> Contact SSC Commercial Space Office &mdash; Col Rich Kniseley<br><b>SSC Front Door:</b> sscfrontdoor.experience.crmforce.mil (select SATCOM/communications)<br><b>Email:</b> SSC.MC@us.af.mil</div></div></div>
+</div>
+<div class="on-tags"><span class="on-tag">CASR SATCOM (expanding)</span><span class="on-tag">PTS development</span></div>
+</div>
+</div>
+<div class="on" style="min-width:128px;max-width:152px" onclick="tog(this)">
+<div class="on-hdr" style="padding:8px 10px"><div class="on-bar" style="background:#BA7517"></div>
+<div><div class="on-title" style="font-size:10px">PEO Launch Enterprise</div><div class="on-sub">~$2B+</div></div><div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-grid">
+<div class="on-cell"><div class="on-lbl">Programs</div><div class="on-txt">NSSL Phase 3 (SpaceX + ULA). NSSL Lane 1 (Rocket Lab, ABL). Rocket Cargo. TacRS responsive launch.</div></div>
+<div class="on-cell"><div class="on-lbl">VC angle</div><div class="on-txt">Most closed PEO. SpaceX owns this market. Purdy (Feb 2026): &ldquo;We&#39;re satisfied with launch.&rdquo; VC opportunity: responsive launch ops software, range safety automation.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>PEO:</b> Brig. Gen. Kristin Panzenhagen (departed Feb 2026; new commander TBD) (Assured Access to Space)<br><b>NSSL solicitations:</b> SAM.gov (search National Security Space Launch)<br><b>SSC Front Door:</b> sscfrontdoor.experience.crmforce.mil (select launch/access to space)<br><b>Email:</b> SSC.LA@us.af.mil</div></div></div>
+</div>
+<div class="on-tags"><span class="on-tag">NSSL Phase 3</span><span class="on-tag">TacRS</span></div>
+</div>
+</div>
+<div class="on" style="min-width:128px;max-width:152px;border-color:#993556" onclick="tog(this)">
+<div class="on-hdr" style="padding:8px 10px;background:#FFF1F2"><div class="on-bar" style="background:#993556"></div>
+<div><div class="on-title" style="font-size:10px;color:#9F1239">PEO Space Combat Power</div><div class="on-sub">$3.2B+ awarded</div></div><div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-grid">
+<div class="on-cell"><div class="on-lbl">Programs</div><div class="on-txt">Space-Based Interceptors (SBIs). 20 OTA contracts ($3.2B) to 12 firms in late 2025/early 2026. Offensive/defensive counterspace (classified). On-orbit maneuver programs.</div></div>
+<div class="on-cell"><div class="on-lbl">VC angle</div><div class="on-txt">Hottest PEO. True Anomaly raised $650M after SBI selection. Hardware covered. Kill chain software &mdash; coordinating 600+ interceptors in real time &mdash; has <b>no incumbent</b>. Biggest open problem in space defense.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>PEO:</b> Col. Bryon McClain (Space Domain Awareness &amp; Combat Power)<br><b>SBI OTA inquiries:</b> SAM.gov (search "space-based interceptor") or MDA SHIELD<br><b>Email:</b> SSC.CP@us.af.mil<br><b>Note:</b> Much of this work is classified &mdash; security clearance required to engage at program level. Start with SHIELD vendor registration at SAM.gov.</div></div></div>
+</div>
+<div class="on-tags"><span class="on-tag-r">SBI OTAs $3.2B &mdash; 12 firms</span><span class="on-tag-r">Kill chain SW &larr; no incumbent</span></div>
+</div>
+</div>
+</div>
+
+</div>
+
+<div class="vl"><div></div></div>
+<div class="pill"><span>Service component command &middot; the bridge from Space Force to SPACECOM</span></div>
+
+<div class="or">
+<div class="on" style="min-width:300px;max-width:500px;border-color:#534AB7;border-style:dashed;background:#EDE9FE" onclick="tog(this)">
+<div class="on-hdr" style="background:#EDE9FE"><div class="on-bar" style="background:#534AB7"></div>
+<div><div class="on-title" style="color:#3730A3">S4S &mdash; US Space Forces &ndash; Space</div><div class="on-sub" style="color:#3730A3">Lt. Gen. Bythewood &middot; Vandenberg SFB CA</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#EDE9FE;color:#3730A3"><b>How CFC&#39;s Guardians actually get used in war.</b> Space Force is the <em>service</em> (organize, train, equip). SPACECOM is the <em>combatant command</em> (fight). S4S is the bridge: CFC presents trained forces to S4S, which then employs them under SPACECOM&#39;s direction.</div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">What it is</div><div class="on-txt">USSPACECOM&#39;s service component command for space &mdash; established Dec 6, 2023, replacing the deactivated CFSCC and JTF-SD. The S4S commander is dual-hatted as the <b>Combined Joint Force Space Component Commander (CJFSCC)</b>.</div></div>
+<div class="on-cell"><div class="on-lbl">Who runs it</div><div class="on-txt"><b>Lt. Gen. Dennis O. Bythewood</b> &mdash; assumed command Nov 4, 2025 (succeeded Schiess). HQ at Vandenberg SFB. Operates the <b>Combined Space Operations Center (CSpOC)</b>.</div></div>
+<div class="on-cell"><div class="on-lbl">Allied integration</div><div class="on-txt">S4S coordinates with allied space ops centers: AUSSpOC (Australia), CANSpOC (Canada), UKSpOC (UK). Runs GLOBAL SENTINEL with 25+ partner nations. The actual surface where US space ops integrate with allies.</div></div>
+<div class="on-cell"><div class="on-lbl">VC relevance</div><div class="on-txt">Indirect but real. S4S ops centers (CSpOC, MWC, JOPC, JNWC) are end consumers of commercial SDA, SATCOM, and ISR data. Bythewood&#39;s public remarks describe operational gaps that flow back into SSC requirements.</div></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="vl"><div></div></div>
+<div class="pill"><span>Combatant command &mdash; the warfighter &middot; reports to SecDef via Joint Chiefs</span></div>
+
+<div class="or"><div class="on" style="min-width:300px;max-width:500px;border-color:#BA7517;border-width:2px" onclick="tog(this)">
+<div class="on-hdr" style="background:#FEF3C7">
+<div class="on-bar" style="background:#BA7517"></div>
+<div><div class="on-title">USSPACECOM &mdash; US Space Command</div><div class="on-sub">Gen. Stephen Whiting (four stars) &middot; Peterson SFB CO &rarr; Redstone Arsenal AL (move underway)</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#FEF9C3;color:#78350F">Space Force <em>builds and trains</em>. SPACECOM <em>fights</em>. SPACECOM doesn&#39;t directly command CFC &mdash; it pulls forces through <b>S4S</b> (the service component command above). ~18,000 joint personnel from all services.</div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">What it does</div><div class="on-txt">Plans and executes military space operations. Provides GPS, SATCOM, missile warning, and SDA to every military commander worldwide. Conducts offensive and defensive counterspace operations.</div></div>
+<div class="on-cell"><div class="on-lbl">Current priorities (2026)</div><div class="on-txt">&ldquo;Dynamic Space Operations&rdquo; &mdash; maneuvering satellites in orbit. &ldquo;Apollo Maneuvers&rdquo; training. <b>First operational element (J2 Intelligence Directorate) moved to Redstone Arsenal Apr 15, 2026</b>; ribbon-cutting Apr 29, 2026; ~200 personnel by year-end. Goal: half of HQ at Redstone by end of 2028. GLOBAL SENTINEL exercise with 25 allied nations.</div></div>
+<div class="on-cell"><div class="on-lbl">Budget signal</div><div class="on-txt">FY27 Unfunded Priority List: empty &mdash; $1.5T budget already addresses highest needs. IPL priority #6: &ldquo;maneuver without regret&rdquo; &mdash; in-space servicing, refueling, and propulsion.</div></div>
+<div class="on-cell"><div class="on-lbl">VC relevance</div><div class="on-txt">SPACECOM is the end customer. Gen. Whiting&#39;s Integrated Priorities List (IPL) tells you what SSC will be funded to buy in future budget cycles. Watch his Space Symposium remarks for forward signals.</div><div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>Commander:</b> Gen. Stephen Whiting<br><b>Dir. of Public Affairs:</b> Col. Phil Ventura<br><b>Public affairs:</b> spacecom.mil/Media/News &middot; usspacecom.pa@spaceforce.mil<br><b>Website:</b> spacecom.mil<br><b>Address:</b> 250 S Peterson Blvd, Peterson SFB CO 80914 &middot; <b>New:</b> Redstone Arsenal AL (J2 there since Apr 2026; rest moving through 2028)</div></div></div>
+</div>
+<div class="on-tags">
+<span class="on-tag-a">Apollo Maneuvers &mdash; satellite maneuver warfare training</span>
+<span class="on-tag-a">GLOBAL SENTINEL &mdash; 25 allied nations</span>
+</div>
+</div>
+</div></div>
+
+<div class="vl"><div></div></div>
+<div class="pill"><span>Cross-agency program &middot; director reports directly to SecDef</span></div>
+
+<div class="or"><div class="on" style="min-width:300px;max-width:520px;border-color:#993556;border-width:2px" onclick="tog(this)">
+<div class="on-hdr" style="background:#FFF1F2">
+<div class="on-bar" style="background:#993556"></div>
+<div><div class="on-title" style="color:#9F1239">GOLDEN DOME &mdash; cross-agency program</div><div class="on-sub">Gen. Michael Guetlein, Director &middot; Space Force Vice Chief &middot; reports to SecDef</div></div>
+<div class="on-chev">&#9660;</div></div>
+<div class="on-body">
+<div class="on-info" style="background:#FFF1F2;color:#9F1239">Not a single organization &mdash; draws on MDA (ground layer), PEO Space Combat Power (space interceptors), SDA (tracking), and yet-to-be-awarded kill chain software. Guetlein coordinates all of it.</div>
+<div class="on-grid">
+<div class="on-cell"><div class="on-lbl">What it is</div><div class="on-txt">Trump&#39;s program (May 2025) for a layered missile defense shield. $25B in hand from reconciliation. $175B estimated total. Initial capability targeted 2028.</div></div>
+<div class="on-cell"><div class="on-lbl">Architecture layers</div><div class="on-txt"><b>Ground:</b> THAAD, Aegis, Patriot, GMD (MDA)<br><b>Space sensors:</b> SDA T3TRK (72 sats, awarded Dec 2025), HBTSS<br><b>Space interceptors:</b> SBIs &mdash; 12 companies, $3.2B (PEO SCP)<br><b>Kill chain SW:</b> No incumbent &larr; wide open</div></div>
+</div>
+<div class="on-ws"><div class="on-ws-lbl">Biggest VC opportunity in this entire chart</div><div class="on-ws-txt">The kill chain software &mdash; fusing sensor data from thousands of satellites, deciding when to shoot, coordinating 600+ interceptors in real time &mdash; has no incumbent. This is the most valuable unsolved software problem in space defense. All hardware is covered. The software is not.</div></div>
+<div class="on-tags">
+<span class="on-tag-r">SHIELD $151B IDIQ (MDA) &mdash; 2,440 vendors</span>
+<span class="on-tag-r">SBI OTAs $3.2B &mdash; 12 firms (PEO SCP)</span>
+<span class="on-tag-r">SDA T3TRK awarded Dec 2025 &mdash; 72 sats, $3.5B</span>
+<span class="on-tag-r">Kill chain BM software &larr; no incumbent</span>
+<div style="background:#EFF6FF;border-radius:6px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;font-weight:600;color:#1B3A6B;margin-bottom:4px">&#128222; POC</div><div style="font-size:11px;color:#444;line-height:1.6"><b>Golden Dome Director:</b> Gen. Michael Guetlein (Space Force Vice Chief)<br><b>MDA SHIELD registration:</b> SAM.gov (search "SHIELD") &mdash; apply first, compete for task orders<br><b>MDA public affairs:</b> mda.pa@mda.mil &middot; (256) 450-3300<br><b>PEO SCP (SBIs):</b> Col. Bryon McClain &mdash; SSC.CP@us.af.mil<br><b>SDA (tracking layer):</b> USSF.SDA.Outreach@mail.mil<br><b>Note:</b> Kill chain software solicitations expected 2026 &mdash; monitor mda.mil and SAM.gov</div></div></div>
+</div>
+</div></div>
+
+<div style="margin-top:16px">
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">Critical context &mdash; ITAR, clearances &amp; the budget cycle</div>
+<div class="on" style="margin-bottom:5px" onclick="tog(this)">
+<div class="on-hdr"><div class="on-bar" style="background:#888"></div><div class="on-title">ITAR &mdash; International Traffic in Arms Regulations</div><div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-grid">
+<div class="on-cell"><div class="on-lbl">What it means</div><div class="on-txt">US regulation controlling export of defense technology. Almost everything in this map is ITAR-controlled. Compliance costs $200K&ndash;$500K/yr for a small company.</div></div>
+<div class="on-cell"><div class="on-lbl">For VCs</div><div class="on-txt"><b>Check the cap table.</b> Significant foreign investors (especially from China, Russia, adversary nations) can disqualify a company from contracts. CFIUS reviews and can block or unwind foreign investments in defense companies.</div></div>
+</div></div>
+</div>
+<div class="on" style="margin-bottom:5px" onclick="tog(this)">
+<div class="on-hdr"><div class="on-bar" style="background:#888"></div><div class="on-title">Security clearances &mdash; biggest barrier to entry</div><div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-grid">
+<div class="on-cell"><div class="on-lbl">The problem</div><div class="on-txt">TS/SCI clearance takes 6 months&ndash;2+ years. Company can&#39;t bid on classified contracts until key people are cleared. Facility Clearance (FCL) takes another 6&ndash;12 months and requires a Facility Security Officer on staff.</div></div>
+<div class="on-cell"><div class="on-lbl">The BRIDGES fix</div><div class="on-txt">DARPA&#39;s BRIDGES program cleared 19 companies in <em>weeks</em>. SSC&#39;s COSMO office (Col. Trimailo) is scaling this model across Space Force. A portfolio company with cleared personnel + FCL is worth meaningfully more than one without.</div></div>
+</div></div>
+</div>
+<div class="on" style="margin-bottom:5px" onclick="tog(this)">
+<div class="on-hdr"><div class="on-bar" style="background:#888"></div><div class="on-title">PPBE &mdash; the budget cycle that controls everything</div><div class="on-chev">&#9660;</div></div>
+<div class="on-body"><div class="on-grid">
+<div class="on-cell"><div class="on-lbl">The 2-year lag</div><div class="on-txt">FY2028 money is being planned right now (spring 2026). Without a funded line item there&#39;s no contract regardless of how much a program office loves your technology. SBIR, OTA, and STRATFI use pre-allocated innovation budgets that bypass this.</div></div>
+<div class="on-cell"><div class="on-lbl">Color of money</div><div class="on-txt"><b>RDT&amp;E</b> &mdash; funds prototypes<br><b>Procurement</b> &mdash; funds production<br><b>O&amp;M</b> &mdash; funds sustainment<br>Understanding which color is being used tells you what stage a program is actually in.</div></div>
+</div></div>
+</div>
+</div>
+
+<script>
+function tog(el){
+  var b=el.querySelector('.on-body');
+  var c=el.querySelector('.on-chev');
+  if(!b)return;
+  var open=b.classList.contains('open');
+  b.classList.toggle('open',!open);
+  if(c)c.style.transform=open?'':'rotate(180deg)';
+}
+function togField(el){
+  var b=el.querySelector('.on-body');
+  var c=el.querySelector('.on-chev');
+  var t=el.querySelector('.on-title').textContent;
+  var panel=document.getElementById('field-panel');
+  var wasOpen=b.classList.contains('open');
+  // close all other field cards
+  document.querySelectorAll('.field-cmd .on-body.open').forEach(function(o){
+    if(o!==b){
+      o.classList.remove('open');
+      var ch=o.parentElement.querySelector('.on-chev');
+      if(ch)ch.style.transform='';
+    }
+  });
+  // close all drill-downs
+  document.querySelectorAll('[id^="drill-"]').forEach(function(d){d.style.display='none';});
+  if(wasOpen){
+    b.classList.remove('open');
+    if(c)c.style.transform='';
+    panel.classList.remove('open');
+    panel.innerHTML='';
+    return false;
+  }else{
+    b.classList.add('open');
+    if(c)c.style.transform='rotate(180deg)';
+    panel.innerHTML='<div class="field-panel-title">'+t+'</div>'+b.innerHTML;
+    panel.classList.add('open');
+    return true;
+  }
+}
+function drill(id){
+  var d=document.getElementById('drill-'+id);
+  if(!d)return;
+  d.style.display='block';
+}
+</script>
+</div>
+
+<div id="view-domains" class="view">
+<div style="font-size:11px;color:#666;margin-bottom:10px;line-height:1.6">Each mission area maps to a Space Force <b>operational delta</b> (see org chart, CFC drill-down). MD2 = SDA, MD3 = EW, MD4 = MW/T, MD31 = PNT. Acquisition is paired System Delta under SSC.</div>
+<div class="domain-filters">
+<button class="dfilt active" onclick="setDF('all',this)" id="df-all">All</button>
+<button class="dfilt" onclick="setDF('budget',this)" id="df-budget">Budget</button>
+<button class="dfilt" onclick="setDF('winners',this)" id="df-winners">Winners</button>
+<button class="dfilt" onclick="setDF('ws',this)" id="df-ws">White space</button>
+</div>
+<div id="domain-list"></div>
+</div>
+
+<!-- ENGAGEMENT (merged Engage + VC Playbook) -->
+<div id="view-engage" class="view">
+<div style="font-size:11px;color:#666;margin-bottom:14px;line-height:1.6">Two views of the same problem: <b>which channels exist</b> (left) and <b>how to sequence the work</b> (right). Skim the channels first, then walk the sequence.</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-bottom:14px">
+
+<!-- COLUMN 1: CHANNELS -->
+<div>
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">Channels &mdash; ranked by VC-friendliness</div>
+
+<div class="card">
+<div class="card-header green"><div class="card-title green">1. SpaceWERX &mdash; start here</div></div>
+<div class="card-body">spacewerx.us &middot; Best first stop. Portfolio Managers aligned to each SSC program office. <b>STRATFI requires VC co-investment.</b> Process: Open Topic SBIR &rarr; Phase I &rarr; Phase II &rarr; TACFI ($375K&ndash;$2M) or STRATFI ($3&ndash;$15M). <b>Current:</b> PY26.1 STRATFI deadline May 29, 2026.</div>
+</div>
+
+<div class="card">
+<div class="card-header blue"><div class="card-title">2. SSC Front Door</div></div>
+<div class="card-body">sscfrontdoor.experience.crmforce.mil &middot; Not a contract vehicle &mdash; an introduction mechanism. Capability brief in, routing to the right program office out.</div>
+</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">3. DIU CSOs</div></div>
+<div class="card-body">diu.mil &middot; Rolling solicitations, no SBIR required. Uses OTA. Explicit investor relations staff. Space portfolio: SDA, SATCOM, autonomous systems. VICTUS HAZE was a DIU engagement.</div>
+</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">4. SDA solicitations</div></div>
+<div class="card-body">sda.mil/opportunities &middot; Fastest DoD acquisition (2&ndash;3yr delivery). Each PWSA tranche is a separate competition. <b>T3TRK Tracking Layer awarded Dec 2025</b> ($3.5B to Lockheed, L3Harris, Northrop, Rocket Lab). T3 Transport Layer halted in FY26 budget &mdash; replaced by MILNET (commercial pLEO, possibly SpaceX-driven). Active: HALO Europa (commercial TACSATCOM), STEC BAA (open). <i>Note: SDA may be folded into a Portfolio Acquisition Executive structure in 2026&ndash;27 &mdash; missions persist.</i></div>
+</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">5. SSC OTA contracts</div></div>
+<div class="card-body">For TRL 6+. Bypasses FAR. Used for Golden Dome SBIs, VICTUS HAZE. Monitor SAM.gov.</div>
+</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">6. AFRL Space Vehicles</div></div>
+<div class="card-body">Kirtland AFB &middot; afrl.af.mil &middot; TRL 1&ndash;5 deep tech. Co-invests in STRATFI. Test facility access (Starfire Optical Range, space environment chambers).</div>
+</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">7. Commercial Space Office (CASR)</div></div>
+<div class="card-body">Col. Rich Kniseley &middot; SSC&#39;s commercial integration arm. CASR pre-negotiates contracts to surge during a crisis. SDA pilot since March 2025; SATCOM expansion 2026.</div>
+</div>
+</div>
+
+<!-- COLUMN 2: SEQUENCE -->
+<div>
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">Sequence &mdash; the Rosc playbook</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">&#127919; Step 1 &mdash; Map to a funded requirement</div></div>
+<div class="card-body">Before any engagement: which PEO has a funded line item matching what this company does? No funded line item = no contract. SpaceWERX is the only exception &mdash; it can create new requirements.</div>
+</div>
+
+<div class="card">
+<div class="card-header green"><div class="card-title green">&#128273; Step 2 &mdash; Get into the SpaceWERX portfolio</div></div>
+<div class="card-body">STRATFI co-investment is the strongest VC-relevant signal in the Space Force. Arthur Grijalva is the relationship to build. <b>PY26.1 deadline May 29, 2026.</b></div>
+</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">&#128176; Step 3 &mdash; Use STRATFI awards as deal flow</div></div>
+<div class="card-body">K2 Space ($60M), Varda ($60M), True Anomaly all scaled through SpaceWERX. Track new awards at spacewerx.us/news. Government money in alongside VC money is a co-investment validation signal.</div>
+</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">&#129309; Step 4 &mdash; Build DIU relationships before you need them</div></div>
+<div class="card-body">Most VC-friendly DoD organization. OnRamp Hub at Capital Factory (Austin) hosts office hours. Show up &mdash; these are real relationship-building, not formalities.</div>
+</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">&#128225; Step 5 &mdash; Monitor SDA solicitations</div></div>
+<div class="card-body">Hardware-startup pipeline. Real customer, real revenue, 2&ndash;3yr timeline. Most realistic path to government revenue. <b>What's active May 2026:</b> HALO Europa, STEC BAA, T3TRK awards rolling out. <b>Watch:</b> the SDA &rarr; PAE reorg through 2026 (Sandhoo likely dual-hats Missile Warning &amp; Tracking PAE), and MILNET's replacement of T3 Transport.</div>
+</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title" style="color:#444">&#128683; Step 6 &mdash; Know what won&#39;t commercialize</div></div>
+<div class="card-body">USSF will <b>not</b> seek commercial solutions for: missile warning, combat power projection, EW, nuclear detonation detection. <b>Sweet spots:</b> SATCOM, SDA, PNT, launch, C2 software, ISR data, cyber, ground systems.</div>
+</div>
+</div>
+
+</div>
+
+<!-- KEY NAMES — single canonical home -->
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">&#128100; Key names to know</div>
+
+<div class="names-grid">
+<div class="name-card"><div class="name-title">Arthur Grijalva</div><div class="name-role">SpaceWERX Director &middot; $470M budget &middot; runs STRATFI &middot; primary VC relationship</div></div>
+<div class="name-card"><div class="name-title">Gen. B. Chance Saltzman</div><div class="name-role">CSO since Nov 2022 &middot; sets commercial integration policy &middot; Schiess nominated to succeed</div></div>
+<div class="name-card"><div class="name-title">Lt. Gen. Douglas Schiess</div><div class="name-role">Nominated next CSO 2026 &middot; previously S4S commander</div></div>
+<div class="name-card"><div class="name-title">Erich Hernandez-Baquero</div><div class="name-role">Asst Sec Space Acquisition (nominated Apr 2026) &middot; previously Raytheon VP. Replaces Calvelli, who joined Redwire&#39;s board.</div></div>
+<div class="name-card"><div class="name-title">Maj. Gen. Stephen Purdy</div><div class="name-role">Senior Advisor to SecAF for Space Acquisition (since Feb 20, 2026; previously Mil Deputy SAF/SQ; advising on broader space acquisition portfolio)</div></div>
+<div class="name-card"><div class="name-title">Col. Bryon McClain</div><div class="name-role">PEO Space Combat Power &middot; runs Golden Dome SBI program &middot; $3.2B in contracts</div></div>
+<div class="name-card"><div class="name-title">Lt. Gen. Philip Garrant</div><div class="name-role">SSC Commander &middot; oversees all Space Force acquisition</div></div>
+<div class="name-card"><div class="name-title">Lt. Gen. Gregory Gagnon</div><div class="name-role">CFC Commander since Nov 2025 &middot; the operators</div></div>
+<div class="name-card"><div class="name-title">Lt. Gen. Dennis Bythewood</div><div class="name-role">S4S commander since Nov 2025 &middot; SPACECOM&#39;s service component lead &middot; CJFSCC</div></div>
+<div class="name-card"><div class="name-title">Col. Rich Kniseley</div><div class="name-role">SSC Commercial Space Office &middot; CASR lead &middot; commercial integration POC</div></div>
+<div class="name-card"><div class="name-title">Dr. GP Sandhoo</div><div class="name-role">SDA Acting Director &middot; likely future Missile Warning &amp; Tracking PAE lead</div></div>
+<div class="name-card"><div class="name-title">Owen West</div><div class="name-role">DIU Director since March 2026</div></div>
+</div>
+
+</div>
+
+<!-- PEO PLAYBOOK -->
+<div id="view-peo" class="view">
+<div style="font-size:11px;color:#666;margin-bottom:14px;line-height:1.6">Each Program Executive Office (PEO) inside Space Systems Command manages a specific portfolio of programs. This is where contracts actually originate. Understanding each PEO tells you which bucket your portfolio company belongs in — and what kind of contract to expect.</div>
+
+<div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:#78350F;line-height:1.6">
+<b>Heads up: SSC is restructuring (2026).</b> The Space Force is moving from a PEO model to <b>Portfolio Acquisition Executive (PAE)</b> offices &mdash; 9 total, 6 already established as of April 2026, 3 more (Space Control; EW/Cyber/Orbital Warfare; Integration) due June 2026. SDA is likely to fold into the new Missile Warning &amp; Tracking PAE. Mission areas persist; office names will change. The breakdown below reflects the legacy PEO structure as it transitions.
+</div>
+
+<div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:#1e40af;line-height:1.6">
+<b>How PEOs work:</b> Each PEO is led by a military officer (usually a colonel or general) and a civilian program executive. They manage a budget, run competitions, and award contracts — typically FAR-based for large programs, OTA for rapid/prototype work, and SBIR/STRATFI through SpaceWERX for commercial innovation. Deal sizes range from $1M SBIR Phase IIs to multi-billion IDIQ vehicles that span decades.
+</div>
+
+<!-- PEO Space C2 -->
+<div class="card" style="margin-bottom:10px">
+<div class="card-header blue"><div class="card-title">PEO Space C2 — Space Command & Control</div></div>
+<div class="card-body">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:10px">
+<div class="name-card">
+<div class="name-title">What it owns</div>
+<div class="name-role">All software systems that command and control Space Force satellites and operations. Space C2 (SpC2) modernization program. Battle management for Golden Dome. GPS OCX ground system. JADC2 integration for Space Force nodes.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Budget signal</div>
+<div class="name-role">~$800M annually. OCX alone has consumed $1B+. SpC2 modernization is a multi-year, multi-hundred-million dollar effort. Golden Dome BM software is emerging as a new major line item.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Contract vehicles used</div>
+<div class="name-role">FAR-based IDIQ (large programs like OCX). OTA for prototypes (SpC2 increments). SBIR/STRATFI for commercial software startups through SpaceWERX.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Current activity (2026)</div>
+<div class="name-role">SpC2 incremental development ongoing. Golden Dome battle management software emerging as new requirement. Active push away from monolithic ground software toward modular cloud-native architecture.</div>
+</div>
+</div>
+<div class="ws-box">
+<div class="ws-label">Why it matters for VC</div>
+<div class="ws-text">The most software-heavy PEO. Every lesson from OCX (single vendor, waterfall, years late) is driving a push toward commercial software approaches. Cloud-native multi-mission ground software and autonomous constellation management are both active unsolved problems this PEO needs to solve. Palantir's Space Force relationships run through here.</div>
+</div>
+</div>
+</div>
+
+<!-- PEO GPS -->
+<div class="card" style="margin-bottom:10px">
+<div class="card-header blue"><div class="card-title">PEO GPS & Navigation Systems (NSS)</div></div>
+<div class="card-body">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:10px">
+<div class="name-card">
+<div class="name-title">What it owns</div>
+<div class="name-role">GPS III and GPS IIIF satellites (Lockheed Martin). GPS OCX ground control system (Raytheon). Military GPS User Equipment — MGUE Inc 1 and Inc 2 (L3Harris). Enhanced Polar System Recapitalization (EPS-R).</div>
+</div>
+<div class="name-card">
+<div class="name-title">Budget signal</div>
+<div class="name-role">~$1.2B annually. GPS III follow-on added 2 satellites in FY25 ($260M+). OCX has been $1B+ over many years. MGUE procurement is ongoing across the services.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Contract vehicles used</div>
+<div class="name-role">Large FAR-based production contracts (GPS III with Lockheed Martin, OCX with Raytheon). Separate competitive buys for user equipment. Some OTA for alternative PNT experimentation.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Current activity (2026)</div>
+<div class="name-role">GPS IIIF production ongoing. OCX testing — 98% test pass rate as of April 2025 but still troubled. MGUE Inc 2 procurement accelerating. Growing interest in commercial alternative PNT (LEO-PNT) as GPS jamming threats increase.</div>
+</div>
+</div>
+<div class="ws-box">
+<div class="ws-label">Why it matters for VC</div>
+<div class="ws-text">The most conservative PEO — dominated by two primes (Lockheed, Raytheon) and slow procurement cycles. The VC angle is in the commercial adjacent space: anti-jam/anti-spoof chipsets for MGUE alternatives, and LEO-PNT constellations that provide GPS backup. Xona Space is the main LEO-PNT player. A GPS jamming event in a major conflict would accelerate this category overnight.</div>
+</div>
+</div>
+</div>
+
+<!-- PEO MILSATCOM -->
+<div class="card" style="margin-bottom:10px">
+<div class="card-header blue"><div class="card-title">PEO MILSATCOM — Military Satellite Communications</div></div>
+<div class="card-body">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:10px">
+<div class="name-card">
+<div class="name-title">What it owns</div>
+<div class="name-role">AEHF (nuclear command SATCOM, 6 satellites). WGS (wideband SATCOM backbone, 11 satellites). Protected Tactical Services (PTS, new jam-resistant system). Commercial Augmentation Space Reserve (CASR) for SATCOM. SDA transport layer coordination.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Budget signal</div>
+<div class="name-role">~$3.7B annually — the largest single mission area in Space Force. AEHF and WGS are operational (sustainment costs). PTS is an active new development. CASR SATCOM expansion is funded for 2026.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Contract vehicles used</div>
+<div class="name-role">Large FAR IDIQ for legacy programs (AEHF sustainment, WGS). OTA and CASR agreements for commercial SATCOM. SpaceWERX SBIR for commercial integration tools. The CASR framework is specifically designed as a non-FAR commercial vehicle.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Current activity (2026)</div>
+<div class="name-role">CASR expanding from SDA pilot to SATCOM — new vendor onboarding underway. PTS development active. Commercial SATCOM wargames completed with 14+ companies in 2025. Next big competition: Protected Tactical SATCOM follow-on.</div>
+</div>
+</div>
+<div class="ws-box">
+<div class="ws-label">Why it matters for VC</div>
+<div class="ws-text">The most commercially open PEO. CASR is a genuine on-ramp — pre-negotiated agreements with commercial SATCOM providers that can be activated during a crisis. New SATCOM vendors are being onboarded now. The interoperability software gap (switching between Starlink, SES, and legacy MILSATCOM) is a real unsolved problem this PEO needs. Most commercial space VC deal flow touching SATCOM eventually runs through this office.</div>
+</div>
+</div>
+</div>
+
+<!-- PEO Launch -->
+<div class="card" style="margin-bottom:10px">
+<div class="card-header blue"><div class="card-title">PEO Launch Enterprise</div></div>
+<div class="card-body">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:10px">
+<div class="name-card">
+<div class="name-title">What it owns</div>
+<div class="name-role">National Security Space Launch (NSSL) program — all Space Force launch contracts. Range operations (Cape Canaveral, Vandenberg). Rocket Cargo program. Tactically Responsive Space (TacRS) launch. Small sat launch (NSSL Lane 1).</div>
+</div>
+<div class="name-card">
+<div class="name-title">Budget signal</div>
+<div class="name-role">~$2B+ annually. NSSL Phase 3 has two lane holders: SpaceX (Falcon 9/Heavy) and ULA (Vulcan Centaur). Lane 1 (medium/small launch) adds Rocket Lab and others. Maj. Gen. Purdy has explicitly said they are "satisfied with launch" — new launch companies are not a priority investment area.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Contract vehicles used</div>
+<div class="name-role">Large FAR IDIQ for NSSL (multi-year, multi-billion). OTA for TacRS demonstrations. SBIR/STRATFI for responsive launch technology (SpaceWERX issued only 1 STRATFI to a launch company — ABL Space, which exited the market).</div>
+</div>
+<div class="name-card">
+<div class="name-title">Current activity (2026)</div>
+<div class="name-role">NSSL Phase 3 active with SpaceX and ULA. Lane 1 expanding. TacRS demonstrations continuing (VICTUS HAZE follow-ons). Range modernization ongoing. Purdy's Feb 2026 investor talk explicitly said payloads and sensors are the gap — not launch vehicles.</div>
+</div>
+</div>
+<div class="ws-box">
+<div class="ws-label">Why it matters for VC</div>
+<div class="ws-text">The most closed PEO for new entrants. SpaceX effectively owns this market. The VC opportunity is not in launch vehicles — it's in launch-adjacent software: range safety automation, payload integration tooling, responsive launch operations software (scheduling 24-hour launch windows). These are software problems, not rocket problems, and they're currently solved manually.</div>
+</div>
+</div>
+</div>
+
+<!-- PEO SCP -->
+<div class="card" style="margin-bottom:10px">
+<div class="card-header" style="background:#FFF1F2;border-bottom:1px solid #FECDD3"><div class="card-title" style="color:#9F1239">PEO Space Combat Power — Col. Bryon McClain</div></div>
+<div class="card-body">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:10px">
+<div class="name-card">
+<div class="name-title">What it owns</div>
+<div class="name-role">Space-Based Interceptors (SBIs) for Golden Dome. Offensive and defensive counterspace capabilities (mostly classified). Space electronic warfare. Kill chain software for space-based weapons. On-orbit maneuvering and rendezvous programs.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Budget signal</div>
+<div class="name-role">$3.2B already awarded in OTA prototype contracts (late 2025/early 2026). $25B allocated to Golden Dome over 10 years by Congress. Single largest new program in Space Force history. Most of the $13.8B reconciliation surge flows through or adjacent to this PEO.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Contract vehicles used</div>
+<div class="name-role">Predominantly OTA — the 20 SBI contracts were all OTA. This is intentional: OTA "attracted both traditional and non-traditional vendors" per Col. McClain. Competitive parallel development (multiple companies building competing prototypes simultaneously) rather than selecting a single winner early.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Current activity (2026)</div>
+<div class="name-role">SBI prototype development underway across 12 firms. Initial capability target: 2028. Next phase competitions expected 2026-2027 as prototypes are evaluated. Kill chain software (battle management) is the identified gap with no current incumbent. Much of the work is classified.</div>
+</div>
+</div>
+<div class="ws-box">
+<div class="ws-label">Why it matters for VC</div>
+<div class="ws-text">The hottest PEO for defense-tech VC right now. True Anomaly ($650M raised after SBI selection) is the clearest example of what a win here does to a company's trajectory. The hardware (interceptors) is now covered by 12 companies. The software — kill chain management, autonomous targeting, battle damage assessment, constellation coordination — has no incumbent. This is the biggest unsolved software problem in space defense. Companies need security clearances and ITAR compliance to play here, which raises the bar but also narrows the competition.</div>
+</div>
+</div>
+</div>
+
+<!-- PEO ISR -->
+<div class="card" style="margin-bottom:10px">
+<div class="card-header blue"><div class="card-title">PEO Intelligence, Surveillance & Reconnaissance (ISR) & Novel Capabilities</div></div>
+<div class="card-body">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:10px">
+<div class="name-card">
+<div class="name-title">What it owns</div>
+<div class="name-role">Overhead Persistent Infrared (OPIR / Next-Gen OPIR) missile warning satellites. Wide Field of View (WFOV) sensors. Hypersonic and Ballistic Tracking Space Sensor (HBTSS). Commercial ISR data purchases. Novel sensing programs (many classified).</div>
+</div>
+<div class="name-card">
+<div class="name-title">Budget signal</div>
+<div class="name-role">~$900M annually for unclassified programs. Classified budget adds significantly to this. Next-Gen OPIR is a multi-billion satellite program. HBTSS is an active development. Commercial ISR data purchases are growing as an alternative to building government sensors.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Contract vehicles used</div>
+<div class="name-role">Large FAR IDIQ for major satellite programs (Next-Gen OPIR with Northrop/Lockheed). OTA and SBIR for novel sensing. Commercial data purchase agreements (Other Transactions) for buying imagery and tracking data from commercial providers.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Current activity (2026)</div>
+<div class="name-role">HBTSS development ongoing. Commercial data buying expanding — Space Force increasingly purchasing ISR data from commercial providers rather than building dedicated government sensors. On-orbit AI inference is an emerging requirement: processing data on the satellite before downlink to reduce latency.</div>
+</div>
+</div>
+<div class="ws-box">
+<div class="ws-label">Why it matters for VC</div>
+<div class="ws-text">The commercial data purchase trend is significant — it means startups with geospatial AI and hyperspectral sensing capabilities can sell data products to the Space Force without winning a traditional satellite contract. HawkEye 360 (RF intelligence) and Slingshot Aerospace (space tracking) are examples. On-orbit AI inference (edge compute on satellites) is an emerging requirement with no current commercial incumbent that meets Space Force standards.</div>
+</div>
+</div>
+</div>
+
+<!-- PEO note on SDA -->
+<div class="card" style="margin-bottom:10px">
+<div class="card-header" style="background:#F0FDF4;border-bottom:1px solid #BBF7D0"><div class="card-title" style="color:#166534">SDA — Space Development Agency (separate from PEO structure but functions like one)</div></div>
+<div class="card-body">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-bottom:10px">
+<div class="name-card">
+<div class="name-title">What it owns</div>
+<div class="name-role">PWSA constellation — Transport Layer (data relay), Tracking Layer (missile tracking), and future layers. 300+ satellites across multiple tranches. Optical inter-satellite links. Ground architecture for PWSA. Airborne optical comms terminals (new RFI 2025).</div>
+</div>
+<div class="name-card">
+<div class="name-title">Budget signal</div>
+<div class="name-role">Multi-billion over 5+ years. Tranche 1 (28 transport + 20 tracking satellites) already launched Sept 2025. T3TRK (54+ tracking satellites) is the current active solicitation. SDA moves faster than any other Space Force acquisition organization.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Contract vehicles used</div>
+<div class="name-role">Predominantly OTA — SDA pioneered the use of OTA for satellite acquisition. Multiple simultaneous competitors per tranche. 2-3 year delivery requirement built into every contract. Also participates in SpaceWERX SBIR for component technologies.</div>
+</div>
+<div class="name-card">
+<div class="name-title">Current activity (2026)</div>
+<div class="name-role">T3TRK RFP active (54+ tracking satellites, proposals due). Airborne optical communications terminal RFI issued. Transport Layer Tranche 2 under construction. First on-orbit demonstrations of space-to-air laser comms completed Aug 2025. Planning for Tranche 3 and beyond.</div>
+</div>
+</div>
+<div class="ws-box">
+<div class="ws-label">Why it matters for VC</div>
+<div class="ws-text">The single best government customer signal for hardware startups. SDA contract = real revenue, real timeline (2-3 years), real validation. Winners of SDA tranches (York Space, Teledyne, Rocket Lab, L3Harris) have used it as a Series B/C anchor. The next opportunity: T3TRK tracking layer satellites. Also watch: airborne optical comms terminals — a new market connecting aircraft directly to LEO satellites via laser, with both military and commercial applications.</div>
+</div>
+</div>
+</div>
+
+<div style="background:#f8f8f8;border-radius:8px;padding:12px 14px;font-size:11px;color:#444;line-height:1.6;margin-top:4px">
+<b style="color:#1B3A6B">Quick reference — PEOs ranked by commercial openness for VC-backed startups:</b><br><br>
+<span style="color:#16A34A;font-weight:600">Most open:</span> SDA (fastest contracts, OTA, 2-3yr timelines) · PEO MILSATCOM (CASR, commercial SATCOM) · PEO Space Combat Power (OTA prototypes, Golden Dome)<br><br>
+<span style="color:#B45309;font-weight:600">Moderately open:</span> PEO Space C2 (SpC2 modernization, software) · PEO ISR (commercial data purchases, novel sensing)<br><br>
+<span style="color:#9F1239;font-weight:600">Mostly closed:</span> PEO GPS (dominated by Lockheed + Raytheon) · PEO Launch (SpaceX owns this market — "satisfied with launch" per Purdy)
+</div>
+</div>
+
+
+
+<!-- USSF STRUCTURE -->
+<div id="view-structure" class="view">
+<div style="font-size:11px;color:#666;margin-bottom:14px;line-height:1.6">How the Space Force is actually organized — written for someone who knows Army (corps → divisions → BDEs) and wants the same mental model for USSF. The short version: USSF is dramatically flatter than the other services. ~19,000 Guardians total, three operational tiers below HQ.</div>
+
+<!-- TL;DR comparison -->
+<div style="background:#FFF1F2;border:1px solid #FECDD3;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:11px;color:#9F1239;line-height:1.6">
+<b style="color:#9F1239">TL;DR vs. the Army:</b> Army has 8 tiers (Army &rarr; Corps &rarr; Division &rarr; BDE &rarr; BN &rarr; Co &rarr; Plt &rarr; Squad). Space Force has <b>3 operational tiers</b>: <b>Field Command &rarr; Delta &rarr; Squadron</b>. They explicitly skipped the wing/group level the Air Force uses. Total force is roughly <b>1 BDE-equivalent in headcount</b> — the entire service is smaller than a single Army division.
+</div>
+
+<!-- THREE TIERS -->
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">The three operational tiers</div>
+
+<div class="card" style="margin-bottom:8px">
+<div class="card-header blue"><div class="card-title">1. Field Commands &middot; led by Lt Gen / Maj Gen</div></div>
+<div class="card-body">
+The top of the operational structure. Three field commands, each owning a major function. (A planned 4th, Space Futures Command, was cancelled in 2025; its functions live on at HQ as SF/S9 staff group.) Roughly equivalent to an Army Corps in scope, but not in size. Each commands ~10,000&ndash;12,000 personnel.
+<div style="background:#f8f8f8;border-radius:6px;padding:8px 10px;margin-top:8px;font-size:11px;color:#444;line-height:1.7">
+<b>CFC</b> &mdash; Combat Forces Command (formerly SpOC). Force provider. ~12,000 Guardians/Airmen. Lt. Gen. Gagnon. Peterson SFB CO. <b>The operators.</b><br>
+<b>SSC</b> &mdash; Space Systems Command. Acquisition. ~10,000 personnel. $11B. Lt. Gen. Garrant. El Segundo CA. <b>The buyers.</b><br>
+<b>STARCOM</b> &mdash; Training &amp; Readiness. Doctrine, training, test. Maj. Gen. Smith. Patrick SFB FL. <b>The schoolhouse.</b><br>
+<b>Space Futures Command</b> &mdash; <i>cancelled.</i> Functions absorbed by SF/S9 Force Design and Analysis staff group at HQ (Apr 2026).
+</div>
+</div>
+</div>
+
+<div class="card" style="margin-bottom:8px">
+<div class="card-header"><div class="card-title" style="color:#444">2. Deltas &middot; led by Colonel (O-6) &middot; ~400 Guardians each</div></div>
+<div class="card-body">
+The Space Force&#39;s equivalent of an Air Force <em>wing</em> + <em>group</em> combined into a single echelon, or roughly an Army <em>brigade</em> in command level (but much smaller in headcount). <b>This is where the work happens.</b> Three flavors:<br><br>
+<b>Mission Delta</b> &mdash; owns an entire mission area end-to-end (e.g., Mission Delta 4 = missile warning). The new integrated model.<br>
+<b>Space Delta</b> &mdash; the older operational-only model. Some still exist where IMD conversion isn&#39;t needed (Delta 6 cyber, Delta 7 ISR).<br>
+<b>Space Base Delta</b> &mdash; runs base support on Space Force installations. Equivalent of an Air Force Mission Support Group.<br>
+<b>Space Launch Delta</b> &mdash; both base support <em>and</em> the launch mission for that base (Vandenberg = SLD 30, Patrick = SLD 45).<br>
+<b>System Delta</b> &mdash; <em>SSC&#39;s</em> new structure. Acquisition deltas paired with operational Mission Deltas.
+</div>
+</div>
+
+<div class="card" style="margin-bottom:14px">
+<div class="card-header"><div class="card-title" style="color:#444">3. Squadrons &middot; led by Lt Col (O-5)</div></div>
+<div class="card-body">
+Lowest command echelon. Numbered + functionally named (e.g., 18th Space Defense Squadron, 1st Range Operations Squadron). 2&ndash;5 squadrons make up a delta. Below squadrons are flights and sections &mdash; administrative groupings, not separate command echelons. The Space Force <b>kept the squadron name on purpose</b> &mdash; CSO Saltzman called it &ldquo;a connection to our heritage&rdquo; that exists in every service.
+</div>
+</div>
+
+<!-- THE 2024-25 REORG -->
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">The 2024&ndash;25 reorganization &mdash; Mission Deltas + System Deltas</div>
+
+<div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:11px;color:#065F46;line-height:1.6">
+<b style="color:#065F46">Why this matters for VC:</b> Old model split operations (CFC) and acquisition (SSC) on opposite coasts &mdash; sustainment and operators rarely talked. New model pairs a <b>Mission Delta</b> (operators + sustainers + cyber + intel under one O-6) with a <b>System Delta</b> (SSC acquisition for the same mission). Test milestones in the existing IMDs are running <b>10&ndash;15% of previously anticipated time</b>. When a mission area &ldquo;goes IMD,&rdquo; the corresponding SSC procurement accelerates &mdash; that&#39;s a leading indicator for your portfolio companies.
+</div>
+
+<!-- THE EIGHT DELTAS TABLE -->
+<div class="card" style="margin-bottom:8px">
+<div class="card-header blue"><div class="card-title">The eight original SpOC operational deltas &mdash; current status</div></div>
+<div class="card-body">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;margin-top:4px">
+
+<div class="name-card">
+<div class="name-title">Mission Delta 2 &mdash; Space Domain Awareness</div>
+<div class="name-role"><b>Now MD2</b> (converted Oct 2024). Tracks all human-made objects LEO &rarr; GEO &rarr; deep space. 4 squadrons. <b>Paired with System Delta 810</b> (sensing &amp; targeting). Peterson SFB.</div>
+</div>
+
+<div class="name-card">
+<div class="name-title">Mission Delta 3 &mdash; Electronic Warfare</div>
+<div class="name-role"><b>Now MD3</b> (one of two original IMD prototypes, Sept 2023). Counter-comms, jamming, EW for space systems. Peterson SFB.</div>
+</div>
+
+<div class="name-card">
+<div class="name-title">Mission Delta 4 &mdash; Missile Warning &amp; Tracking</div>
+<div class="name-role"><b>Now MD4</b> (converted Oct 2024). Operates 3 OPIR constellations + 2 ground radar types. <b>Paired with System Delta 84</b> (missile warning &amp; tracking). Buckley SFB.</div>
+</div>
+
+<div class="name-card">
+<div class="name-title">Space Delta 5 &mdash; Command &amp; Control</div>
+<div class="name-role"><b>Still SpDelta.</b> Combined Force Space Component Command operations. Likely future IMD conversion. Vandenberg SFB.</div>
+</div>
+
+<div class="name-card">
+<div class="name-title">Space Delta 6 &mdash; Cyberspace Operations</div>
+<div class="name-role"><b>Still SpDelta. Unlikely to convert</b> &mdash; Lt. Gen. Miller publicly said cyber doesn&#39;t fit the IMD model. Defensive cyber for space mission systems. Schriever SFB.</div>
+</div>
+
+<div class="name-card">
+<div class="name-title">Space Delta 7 &mdash; Intelligence, Surveillance &amp; Reconnaissance</div>
+<div class="name-role"><b>Still SpDelta. Unlikely to convert.</b> Global ISR ops to characterize/target adversary space capabilities. Peterson SFB.</div>
+</div>
+
+<div class="name-card">
+<div class="name-title">Space Delta 8 &mdash; SATCOM &amp; Nav Warfare</div>
+<div class="name-role"><b>Partially split.</b> PNT subunits hived off into MD31 in 2023. SATCOM portion remains as Delta 8. Future SATCOM IMD conversion announced. Schriever SFB.</div>
+</div>
+
+<div class="name-card">
+<div class="name-title">Space Delta 9 &mdash; Orbital Warfare</div>
+<div class="name-role"><b>Still SpDelta.</b> The actual fight in orbit &mdash; rendezvous &amp; proximity ops, on-orbit defense. Future IMD conversion announced. Schriever SFB.</div>
+</div>
+
+<div class="name-card" style="background:#ECFDF5">
+<div class="name-title" style="color:#065F46">Mission Delta 31 &mdash; PNT</div>
+<div class="name-role"><b>The first IMD</b> (Sept 2023, Provisional &rarr; full MD Oct 2024). Created by hiving GPS/PNT operators out of Delta 8. <b>Paired with SSC&#39;s SYD 31</b>. Schriever SFB.</div>
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- BASE / LAUNCH DELTAS -->
+<div class="card" style="margin-bottom:14px">
+<div class="card-header"><div class="card-title" style="color:#444">Base &amp; launch deltas (the &ldquo;keep the lights on&rdquo; layer)</div></div>
+<div class="card-body">
+Not VC-relevant for capabilities buying, but you&#39;ll see them in addresses and POCs:<br><br>
+<b>Space Base Delta 1</b> &mdash; Peterson SFB &amp; Schriever SFB (CO)<br>
+<b>Space Base Delta 2</b> &mdash; Buckley SFB (CO)<br>
+<b>Space Base Delta 3</b> &mdash; Los Angeles AFB / El Segundo (SSC&#39;s base)<br>
+<b>Space Base Delta 41</b> &mdash; Patrick SFB / Cape Canaveral (FL)<br>
+<b>Space Launch Delta 30</b> &mdash; Vandenberg SFB (CA, west coast launch)<br>
+<b>Space Launch Delta 45</b> &mdash; Patrick SFB / Cape Canaveral (FL, east coast launch)
+</div>
+</div>
+
+<!-- HOW TO SELL INTO THIS -->
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">How a sale actually flows through this structure</div>
+
+<div class="card" style="margin-bottom:8px">
+<div class="card-header green"><div class="card-title green">The 4-stop journey for a portfolio company</div></div>
+<div class="card-body">
+<b>1. PEO buys it</b> (under SSC) &mdash; e.g., PEO MILSATCOM awards a contract<br>
+<b>2. System Delta sustains it</b> &mdash; the SSC sustainment delta paired with the operational mission<br>
+<b>3. Mission Delta operates it</b> &mdash; the CFC delta whose Guardians use the capability daily<br>
+<b>4. Mission Delta tells you what&#39;s broken</b> &mdash; their pain points feed back into the next acquisition cycle<br><br>
+When SpaceWERX talks about getting your portfolio company &ldquo;in front of operators,&rdquo; <b>they mean the Mission Deltas</b>. When they talk about the &ldquo;sustainment partner,&rdquo; they mean the System Delta. The IMD/SYD pairing means both can now be in the same room.
+</div>
+</div>
+
+<div class="card" style="margin-bottom:8px">
+<div class="card-header"><div class="card-title" style="color:#444">Ranks &amp; how to read them at a glance</div></div>
+<div class="card-body">
+<b>O-10 (Gen, four star)</b> &mdash; CSO (Saltzman), USSPACECOM (Whiting)<br>
+<b>O-9 (Lt Gen, three star)</b> &mdash; field command commanders (Garrant SSC, Gagnon CFC)<br>
+<b>O-8 (Maj Gen, two star)</b> &mdash; STARCOM commander (Smith), military deputies in SSC<br>
+<b>O-7 (Brig Gen, one star)</b> &mdash; deputy field command roles, large PEOs<br>
+<b>O-6 (Col)</b> &mdash; <b>delta commanders, PEO commanders for smaller portfolios</b><br>
+<b>O-5 (Lt Col)</b> &mdash; squadron commanders<br><br>
+<b>The colonel rank is your sweet spot.</b> Delta and PEO commanders are the people whose buying decisions actually matter for VC-stage deals. They&#39;re senior enough to commit budget, junior enough to take meetings.
+</div>
+</div>
+
+<div class="card" style="margin-bottom:8px">
+<div class="card-header"><div class="card-title" style="color:#444">Service component commands &mdash; where USSF plugs into combatant commands</div></div>
+<div class="card-body">
+Below the field commands, but separate, are the <b>service component commands</b> (called Space Forces &mdash; INDOPACOM, EUCOM, CENTCOM, etc.). These are how Space Force capabilities flow to the combatant commands (warfighters). Led by colonels or brigadier generals. Not where you sell &mdash; but where you&#39;ll see Space Force capabilities <em>used</em> in conflict. Mostly relevant for understanding requirement origin: a CENTCOM commander&#39;s urgent need for SATCOM in a Middle East crisis flows up through Space Forces CENTCOM &rarr; CFC &rarr; SSC &rarr; eventually a contract.
+</div>
+</div>
+
+<div style="background:#f8f8f8;border-radius:8px;padding:12px 14px;font-size:11px;color:#444;line-height:1.6;margin-top:14px">
+<b style="color:#1B3A6B">Bottom line for Rosc:</b> The Space Force is small enough that <b>you can know everyone who matters</b>. There are 3 (soon 4) field command commanders, ~30 delta commanders, and ~6&ndash;8 PEO leaders. That&#39;s &lt;50 people who collectively control the entire VC-relevant buying surface. Build the relationship map once, and the sales motion for every portfolio company runs through the same names.
+</div>
+</div>
+
+
+<div id="view-glossary" class="view">
+<div style="font-size:11px;color:#666;margin-bottom:14px;line-height:1.6">Every acronym and term used in this document, explained from scratch. No prior knowledge assumed.</div>
+
+<div style="margin-bottom:16px">
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">The basics — what is the Space Force?</div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">USSF — United States Space Force</div></div><div class="card-body">The sixth and newest branch of the US military, created by Congress in December 2019. Think of it like the Army or Navy, but focused entirely on space. Its job is to protect US interests in space (satellites, GPS, missile warning systems) and to make sure adversaries like China and Russia can't take those away. There are about 19,000 people ("Guardians") in the Space Force. It operates within the Department of the Air Force alongside the US Air Force — similar to how the Marine Corps sits inside the Department of the Navy.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">CSO — Chief of Space Operations</div></div><div class="card-body">The most senior military officer in the Space Force, equivalent to the Army's Chief of Staff or the Navy's Chief of Naval Operations. Currently General B. Chance Saltzman (since Nov 2022); Lt. Gen. Douglas Schiess nominated to succeed him in 2026. He sets the overall strategy and direction for the entire Space Force and reports to the Secretary of Defense. Think of him as the CEO of the Space Force. <b>Don't confuse with</b> "CSO" used as Commercial Solutions Opening — DIU's contracting mechanism (separate entry below).</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">DoD — Department of Defense</div></div><div class="card-body">The entire US military establishment — Army, Navy, Air Force, Marines, Space Force, Coast Guard, and all the civilian and contractor support around them. The Secretary of Defense (currently Pete Hegseth) runs it and reports to the President. The DoD's annual budget is roughly $900 billion.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">DAF — Department of the Air Force</div></div><div class="card-body">The cabinet-level department that houses both the US Air Force and the US Space Force. Led by the Secretary of the Air Force (currently Troy Meink). Think of it as the parent organization — the Space Force is one of two services inside it.</div></div>
+</div>
+
+<div style="margin-bottom:16px">
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">The command structure</div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">SSC — Space Systems Command</div></div><div class="card-body">The Space Force organization responsible for buying and building things — satellites, software, ground systems, launch vehicles. If you want to sell something to the Space Force, SSC is almost always the door you knock on. $11 billion annual budget. Headquartered in El Segundo, California (near Los Angeles). Led by a three-star general (Lt. Gen. Philip Garrant). Equivalent of a giant defense procurement office. <b>Reorganization underway:</b> SSC is shifting from a PEO structure to <b>9 Portfolio Acquisition Executive (PAE) offices</b> through 2026, with full operating capability targeted Nov 27, 2026.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">CFC — Combat Forces Command (formerly SpOC)</div></div><div class="card-body">The Space Force organization that actually operates the satellites and systems SSC builds — running day-to-day operations: pointing satellites, commanding constellations, providing GPS and missile warning data to the military. They're the users; SSC is the buyer. <b>Renamed Nov 3, 2025</b> from Space Operations Command (SpOC) to Combat Forces Command (CFC) under Lt. Gen. Gregory Gagnon, aligning the name with the field command's warfighting mission. Headquartered at Peterson Space Force Base in Colorado Springs. ~12,000 Guardians and Airmen. You'll still see "SpOC" in older documents and on the legacy website during the transition.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">STARCOM — Space Training and Readiness Command</div></div><div class="card-body">Trains Space Force Guardians and develops doctrine (the official playbook for how to do things in space operations). Permanent HQ at Patrick Space Force Base, Florida (relocated from Peterson; Maj. Gen. James E. Smith assumed command July 18, 2025). Least relevant to VC deal flow unless you're building training simulators or war-gaming software — though STARCOM's Operational Test and Training Infrastructure (OTTI) initiative, including the SWARM digital training environment, is creating real demand for synthetic training and modeling/simulation vendors.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">SDA (agency) — Space Development Agency</div></div><div class="card-body">A relatively new organization inside the Space Force specifically designed to buy satellites faster than the traditional process allows. Traditional DoD satellite programs take 10-15 years. SDA targets 2-3 year delivery. It's building the PWSA (see below) — a large constellation of small satellites in low Earth orbit. For startups, SDA contracts are the most realistic path to a government customer quickly. <b>Status update:</b> as of April 2026, Acting Director GP Sandhoo said SDA "probably won't exist" as a standalone agency once the Space Force's portfolio reorg completes; missions persist but the agency may be folded into Portfolio Acquisition Executive (PAE) offices. <b>Don't confuse with</b> "SDA" as space domain awareness (separate entry).</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">PEO — Program Executive Office</div></div><div class="card-body">Think of a PEO as a specialized procurement department within SSC. Each PEO owns a specific set of programs. PEO GPS manages GPS satellites. PEO MILSATCOM manages military communications satellites. PEO Space Combat Power manages the Golden Dome space weapons programs. If you want to sell to a specific program area, you eventually need to find the right PEO. There are roughly 8-10 PEOs under SSC.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">DIU — Defense Innovation Unit</div></div><div class="card-body">A Pentagon organization specifically created to bridge the gap between Silicon Valley commercial tech companies and the US military. Founded in 2015 with offices in Mountain View, CA (Silicon Valley), Austin, TX, and Boston. Unlike traditional DoD contracting, DIU uses a faster contract type (OTA) and actively recruits commercial companies that have never sold to the government before. Explicitly VC-friendly — they have investor relations staff and attend tech conferences. If your portfolio company wants to sell to DoD without going through a 3-year procurement process, DIU is the first call.</div></div>
+</div>
+
+<div style="margin-bottom:16px">
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">Acquisition & contracting</div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">SBIR / STTR — Small Business Innovation Research / Small Business Tech Transfer</div></div><div class="card-body">Government-funded R&D grants specifically for small businesses and startups. Phase I is $50K–$250K to prove a concept. Phase II is $750K–$1.5M to build a prototype. Phase III is when you commercialize — no funding cap, can lead to sole-source contracts. Think of Phase I/II as the government paying a startup to de-risk technology before buying it at scale. SBIR/STTR authorization lapsed in October 2025 but was reauthorized through FY2031 (S. 3971, Small Business Innovation and Economic Security Act, signed/enacted April 14, 2026). Programs are funded and active.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">STRATFI — Strategic Funding Increase</div></div><div class="card-body">A Space Force program that layers additional government funding ($3M–$15M) on top of a company's existing Phase II SBIR contract — but only if private investors co-invest matching funds. This is the most VC-friendly program in the Space Force. The government is saying: "We believe in this technology enough to put money in alongside yours." True Anomaly, Varda, and K2 Space all used STRATFI to scale. Managed by SpaceWERX. PY26.1 deadline is May 29, 2026.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">TACFI — Tactical Funding Increase</div></div><div class="card-body">The smaller version of STRATFI — $375K–$2M. Same concept (matching VC funds + government funds) but for earlier-stage or lower-priority technology. Good stepping stone toward a full STRATFI.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">OTA — Other Transaction Authority</div></div><div class="card-body">A special contracting authority that lets the government bypass the standard Federal Acquisition Regulations (FAR) procurement rules. Standard DoD procurement is notoriously slow and bureaucratic — OTA was created to speed it up, especially for prototype and research work. DIU uses OTA almost exclusively. The Golden Dome SBI contracts ($3.2B to 12 firms) were all OTA. Think of OTA as the government's "fast lane" for deals with commercial companies.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">FAR — Federal Acquisition Regulations</div></div><div class="card-body">The standard rulebook for how the US government buys things. Extremely detailed, slow, and bureaucratic. Written primarily for large defense contractors, not startups. When people say DoD contracting is hard, they mostly mean FAR-based contracting. OTA, SBIR, and DIU's CSOs were all created specifically to avoid FAR for commercial tech.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">CSO — Commercial Solutions Opening (DIU contract type)</div></div><div class="card-body"><i>Not to be confused with the Chief of Space Operations.</i> DIU's primary contract solicitation method. Unlike traditional RFPs that are written around a specific technical specification, CSOs describe a problem the government is trying to solve and invite any commercial company to propose a solution. Rolling admissions — you can submit anytime, not just during a specific window. No SBIR Phase II required. The most accessible DoD contract mechanism for a VC-backed startup.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">TRL — Technology Readiness Level</div></div><div class="card-body">A 1–9 scale the government uses to assess how mature a technology is. TRL 1 is basic research (it exists in a lab). TRL 9 is fully operational in the field. OTA contracts typically require TRL 6+ (prototype demonstrated in relevant environment). SBIR starts at TRL 1-3. STRATFI is typically TRL 4-6. This matters for VCs because it tells you how much technical de-risking still needs to happen before a government contract is realistic.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">PPBE — Planning, Programming, Budgeting & Execution</div></div><div class="card-body">The annual cycle the DoD uses to allocate money. Budget requests are submitted about 2 years before the money is actually available to spend. This is why selling to the government is slow — even if a program office loves your technology, there may be no money allocated for it until the next budget cycle. SBIR and OTA are partly designed to work around this by using pre-allocated innovation funds.</div></div>
+</div>
+
+<div style="margin-bottom:16px">
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">The innovation offices</div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">SpaceWERX</div></div><div class="card-body">The Space Force's dedicated innovation office, embedded within SSC. Manages the Space Force's SBIR/STTR portfolio ($470M budget), runs the STRATFI and TACFI programs, and organizes cohort programs that connect startups with Space Force program offices. Think of SpaceWERX as the Space Force's venture arm — they identify promising commercial technologies and help them find a path to government contract. Director: Arthur Grijalva. Website: spacewerx.us</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">AFRL — Air Force Research Laboratory</div></div><div class="card-body">The DoD's primary space research organization. Based at Kirtland Air Force Base in New Mexico. Conducts basic and applied research for space technologies at early TRL levels (1-5). AFRL's Space Vehicles Directorate is the most relevant division. AFRL often co-invests in STRATFI contracts alongside SpaceWERX — providing government matching funds. Also provides test facilities (like the Starfire Optical Range for satellite tracking) that startups can access to validate technology.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">AFWERX</div></div><div class="card-body">The Air Force version of SpaceWERX — the Air Force's innovation arm. Runs SBIR/STTR programs for Air Force (not Space Force) technology needs. SpaceWERX was spun out of AFWERX specifically to focus on space. They still share some infrastructure and programs.</div></div>
+</div>
+
+<div style="margin-bottom:16px">
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">The satellites & systems</div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">SATCOM — Satellite Communications</div></div><div class="card-body">Using satellites to transmit voice, data, and video over long distances. The military relies on SATCOM for everything from drone control to strategic communications between commanders. MILSATCOM specifically means military-owned satellite communications (as opposed to commercial SATCOM like Starlink). The Space Force is the #1 user of satellite communications in the world.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">MILSATCOM — Military Satellite Communications</div></div><div class="card-body">Government-owned and operated military communications satellites. The main programs are AEHF (ultra-secure communications for nuclear command and control), WGS (Wideband Global SATCOM — the "internet backbone" for military), and the newer Protected Tactical Services (PTS, jam-resistant). Complements commercial SATCOM like Starlink/Starshield which the military leases during crises.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">AEHF — Advanced Extremely High Frequency</div></div><div class="card-body">A constellation of 6 highly encrypted communications satellites specifically designed to survive nuclear war and jamming. Used for nuclear command and control — the communications link between the President, nuclear submarines, bombers, and missile silos. Extremely hardened against electronic attack. Successor to the Milstar system.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">WGS — Wideband Global SATCOM</div></div><div class="card-body">The Space Force's primary high-bandwidth communications satellite system — basically the military's satellite internet backbone. 11 satellites in geosynchronous orbit. Used for everything from drone video feeds in Afghanistan to ship-to-shore communications. Less hardened than AEHF but much higher bandwidth.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">PTS — Protected Tactical Services / SATCOM</div></div><div class="card-body">A newer jam-resistant military satellite communications program. Designed to work even when adversaries are actively trying to jam or spoof the signals. Replaces older protected SATCOM systems. Uses advanced anti-jam waveforms and frequency-hopping techniques.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">GPS — Global Positioning System</div></div><div class="card-body">The US military's satellite navigation system — the same one in your phone, but originally built for and still operated by the Space Force. 31 operational satellites in medium Earth orbit. Every US military system from guided missiles to soldier wearables relies on GPS for timing and positioning. GPS jamming and spoofing (making GPS show the wrong location) are serious active threats — Russia and Iran both do it routinely in conflict zones.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">GPS OCX — GPS Operational Control System (Next Generation)</div></div><div class="card-body">The ground software system that controls GPS III satellites. A notoriously troubled program — over $1 billion spent, years behind schedule, still not fully operational. Managed by Raytheon for the PEO GPS office. A cautionary tale about what happens when complex C2 software is built the old way (massive contracts, single vendor, waterfall development).</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">MGUE — Military GPS User Equipment</div></div><div class="card-body">The military GPS receivers used by soldiers, aircraft, ships, and missiles. More jam-resistant and secure than civilian GPS. Two generations are currently being procured: Inc 1 (baseline anti-jam capability) and Inc 2 (more advanced). Getting MGUE into the hands of every military user is a multi-year procurement effort.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">OPIR — Overhead Persistent Infrared</div></div><div class="card-body">A class of satellites that detect missile launches by the infrared (heat) signature of rocket engines. The Space Force's primary early warning system for ballistic missiles and increasingly hypersonic weapons. Current generation is the SBIRS system. Next generation (Next-Gen OPIR) is being developed by Northrop Grumman and Lockheed Martin.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">PWSA — Proliferated Warfighter Space Architecture</div></div><div class="card-body">The Space Development Agency's plan to build a large constellation of small satellites in low Earth orbit (LEO) that provide communications, missile tracking, and data transport to military users. "Proliferated" means many small cheap satellites instead of a few big expensive ones — harder to knock out. Target is 300+ satellites. Think of it as the Space Force's version of Starlink but for classified military use.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">HBTSS — Hypersonic and Ballistic Tracking Space Sensor</div></div><div class="card-body">A program to put sensors in low Earth orbit that can track hypersonic missiles — the fast, maneuvering weapons that China and Russia are developing specifically to evade traditional missile defense. Hypersonic missiles are hard to track because they don't follow predictable ballistic trajectories. HBTSS provides the "eyes" for systems like THAAD and the future Golden Dome.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">WFOV — Wide Field of View</div></div><div class="card-body">A type of space sensor that covers a large area of Earth at once — sacrificing detail for coverage. Complements narrow field of view (NFOV) sensors that see less area but in higher resolution. Used for missile launch detection and space domain awareness where you need to watch a lot of sky simultaneously.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">EPS-R — Enhanced Polar System Recapitalization</div></div><div class="card-body">Replacement satellites for the Enhanced Polar System — a protected communications capability specifically for military users in the Arctic and polar regions, where GPS and standard SATCOM don't work well. The replacement payloads were hosted on commercial Norwegian satellites (Space Norway) and launched in August 2024, saving about $900M vs building dedicated government satellites.</div></div>
+</div>
+
+<div style="margin-bottom:16px">
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">Orbits, physics & the space environment</div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">LEO — Low Earth Orbit</div></div><div class="card-body">The region of space from about 200 to 2,000 km altitude. Satellites here move fast (circle Earth every 90 minutes) and are close enough that signals travel with low latency — good for communications and sensing. SpaceX's Starlink operates in LEO. SDA's PWSA constellation is being built in LEO. The trade-off: individual LEO satellites see a small area at any moment, so you need many of them for global coverage.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">MEO — Medium Earth Orbit</div></div><div class="card-body">The region from about 2,000 to 35,000 km altitude. GPS satellites orbit here at about 20,200 km. MEO provides global coverage with fewer satellites than LEO but introduces more signal delay (latency). The Van Allen radiation belts also pass through MEO, making electronics harder to protect.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">GEO — Geostationary Orbit</div></div><div class="card-body">A specific orbit at 35,786 km altitude where a satellite's orbital speed matches Earth's rotation — it appears to hover in the same spot in the sky. Traditional communications satellites (like DirecTV) and weather satellites use GEO. Advantage: one satellite covers a third of Earth continuously. Disadvantage: signals take 240+ ms to travel up and back (noticeable lag), and satellites are expensive single points of failure.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">RF — Radio Frequency</div></div><div class="card-body">The electromagnetic spectrum used for wireless communications — radio, radar, satellite uplinks, GPS signals. "RF intelligence" means detecting and analyzing radio signals from other satellites or ground systems. Adversary satellites emit RF signatures that can be detected passively (without active radar) — an important source of space domain awareness information.</div></div>
+</div>
+
+<div style="margin-bottom:16px">
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">Missile defense & weapons</div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">SBI — Space-Based Interceptor</div></div><div class="card-body">A satellite armed with a kill vehicle (essentially a guided projectile) that can destroy enemy ballistic missiles shortly after launch — the "boost phase" when the rocket engine is still burning and the missile is moving slowly and predictably. The key component of the Golden Dome space layer. 20 prototype contracts ($3.2B total) awarded to 12 companies in late 2025/early 2026. Initial capability targeted for 2028.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">Golden Dome</div></div><div class="card-body">President Trump's program (announced May 2025) to build a layered missile defense system protecting the entire US homeland — inspired by Israel's Iron Dome but vastly more ambitious. The "golden" refers to the space layer (SBIs in orbit). Total estimated cost: $175B+ over 10-20 years. FY2026 got $13.8B via reconciliation. This is the single largest new Space Force program and is driving most of the current VC excitement in the space defense sector.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">CASR — Commercial Augmentation Space Reserve</div></div><div class="card-body">A program modeled on the Air Force's Civil Reserve Air Fleet (which lets the military call on commercial airlines during a crisis). CASR pre-negotiates agreements with commercial space companies so the Space Force can "surge" their capabilities during a conflict — more communications bandwidth, more satellite imagery, more tracking data. Currently in pilot phase for SDA (4 companies, started March 2025). Expanding to SATCOM in 2026. This is a genuine on-ramp for commercial space startups to get paid government contracts.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">NSSL — National Security Space Launch</div></div><div class="card-body">The Space Force's primary launch procurement program. Buys launch services from commercial providers to put military satellites into orbit. Currently two contract holders: SpaceX (Falcon 9 and Falcon Heavy) and ULA (Vulcan Centaur). There's also a smaller "Lane 1" for medium/small satellites that includes Rocket Lab and others. NSSL contracts are worth billions over multi-year periods and are the lifeblood of the launch industry.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">TacRS — Tactically Responsive Space</div></div><div class="card-body">The ability to launch a satellite within hours or days of a need being identified — not the current reality of months-to-years planning cycles. The Space Force wants this capability to quickly replace satellites that are damaged or destroyed in conflict. VICTUS HAZE (2024) demonstrated this with True Anomaly and Rocket Lab. SpaceWERX runs a TacRS challenge program.</div></div>
+</div>
+
+<div style="margin-bottom:16px">
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">Intelligence & surveillance</div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">ISR — Intelligence, Surveillance & Reconnaissance</div></div><div class="card-body">The collection of information about adversaries using sensors. "Intelligence" is the analysis. "Surveillance" is continuous monitoring of an area or target. "Reconnaissance" is targeted observation of a specific location or asset. From space, ISR includes satellite imagery, electronic signal collection, missile tracking, and ship monitoring. The Space Force provides ISR data to every branch of the military and to intelligence agencies like the CIA and NSA.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">SDA (concept) — Space Domain Awareness</div></div><div class="card-body">Knowing what's in space: where every satellite is, what it's doing, who owns it, and whether it's a threat. The US currently tracks over 50,000 objects in orbit. As China and Russia put more satellites up — including satellites designed to maneuver close to US satellites and potentially disable them — SDA becomes a critical national security function. Companies like LeoLabs and True Anomaly provide commercial SDA data.</div></div>
+</div>
+
+<div style="margin-bottom:16px">
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">Command, control & software</div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">C2 — Command and Control</div></div><div class="card-body">The systems and processes used by military commanders to direct forces and operations. In space, C2 means the software and hardware used to command satellites — telling them where to point, what data to collect, when to transmit. The Space Force's Space C2 (SpC2) modernization program is trying to build software that can command thousands of satellites simultaneously. Current systems were built when the Space Force had dozens of satellites; PWSA will have hundreds.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">BM — Battle Management</div></div><div class="card-body">The systems that help military commanders make decisions during a battle — fusing sensor data, tracking threats, coordinating responses, and recommending actions. In the Golden Dome context, BM is the software that takes data from thousands of tracking satellites, identifies incoming missiles, and directs interceptors to the right place at the right time. No single company currently provides this for space-based missile defense.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">JADC2 — Joint All-Domain Command and Control</div></div><div class="card-body">A DoD-wide initiative to connect all military sensors and shooters across land, sea, air, space, and cyber into a single networked system. The idea: a soldier in a desert can see data from a satellite and direct a Navy ship to respond, all automatically. Space Force's space systems are a key node in this network. Still largely in development — one of the most ambitious and most troubled programs in DoD.</div></div>
+</div>
+
+<div style="margin-bottom:16px">
+<div style="font-size:11px;font-weight:700;color:#1B3A6B;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #e0e0e0">VC & investment terms in this context</div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">Dual-use</div></div><div class="card-body">Technology that has both commercial and military applications. Starlink is dual-use — originally built for consumer internet, now also used by the US military (as Starshield). Vector databases (like Pinecone) are dual-use — originally built for commercial AI, now relevant for defense AI. Dual-use companies are generally more attractive to VCs because they don't depend on the government as their only customer.</div></div>
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">Valley of Death</div></div><div class="card-body">The gap between a company winning a research contract (Phase II SBIR) and getting a large production contract. The government funds early R&D and eventually buys mature systems at scale — but there's a painful middle period where neither phase is funded. Many defense startups die here. STRATFI was specifically created to help companies cross this gap. The "second valley of death" in the space context refers to the gap between designing a satellite and being able to manufacture it at scale.</div></div>
+
+<div class="card"><div class="card-header"><div class="card-title" style="color:#444">Prime contractor / "the primes"</div></div><div class="card-body">The large, established defense companies that have historically dominated DoD contracts: Lockheed Martin, Northrop Grumman, Raytheon (now RTX), Boeing, General Dynamics, L3Harris. They win the major contracts and typically subcontract work to smaller companies. The Space Force's commercial integration push is explicitly designed to reduce dependence on the primes and bring in non-traditional (VC-backed) companies. When this document says a winner is a "prime," it means one of these legacy giants.</div></div>
+</div>
+</div>
+
+<!-- DRAWER -->
+<div id="drawer" class="drawer">
+<div class="drawer-top">
+<div class="drawer-title" id="drawer-title"></div>
+<button class="drawer-close" onclick="closeDrawer()">×</button>
+</div>
+<div class="drawer-body" id="drawer-body"></div>
+</div>
+
+<script>
+var DD={
+cso:{t:'Chief of Space Operations — Gen. Saltzman',b:'Sets Space Force strategy. Publicly signals commercial integration direction — speeches at Space Symposium are must-reads. Key quote: "Demand for SATCOM is almost unlimited." Not a direct acquisition contact but his statements directly predict where program offices spend money.<br><br><b>VC relevance:</b> Track public remarks for forward signals on commercial priorities.'},
+secaf:{t:'Secretary of the Air Force — Troy Meink',b:'Civilian head of the Department of the Air Force. Frank Calvelli (Asst Sec for Space Acquisition) is the more operationally relevant contact — runs space acquisition policy and co-signed the Commercial Space Strategy.<br><br><b>VC relevance:</b> Low for deal flow. High for policy signals.'},
+asstsec:{t:'Asst Sec for Space Acquisition — Frank Calvelli',b:'Runs acquisition policy for all Space Force programs. Co-signed the Commercial Space Strategy in 2024. His "20 acquisition tenets" are the philosophy behind faster contracts.<br><br><b>VC relevance:</b> Medium-low for direct engagement. High for policy. Read his congressional testimony for forward budget signals.'},
+ssc:{t:'Space Systems Command (SSC)',b:'Primary acquisition arm of the Space Force. $11B annual budget. 10,000 employees. El Segundo, CA. Manages development, fielding, and sustainment of all Space Force capabilities.<br><br><b>SSC Front Door:</b> sscfrontdoor.experience.crmforce.mil — formal portal for commercial companies to introduce capabilities to program offices.'},
+spoc:{t:'Combat Forces Command (CFC, formerly SpOC)',b:'Renamed from SpOC to Combat Forces Command on Nov 3, 2025 under Lt. Gen. Gregory Gagnon. ~12,000 Guardians and Airmen. Operates Space Force capabilities for warfighters. Not an acquisition org — they receive what SSC delivers and operate it.<br><br><b>VC relevance:</b> Low for contracts. High for requirements. CFC operators are end users — their pain points become SSC acquisition requirements.'},
+starcom:{t:'STARCOM — Maj. Gen. James E. Smith',b:'HQ at Patrick SFB FL (relocated from Peterson; Smith assumed command July 18, 2025). Trains Space Force Guardians and develops doctrine, tactics, techniques, and procedures (TTPs) for space operations. Runs the Space Force Officer Training Course and Guardian Basic Military Training. Operates the Space Delta 13 formal training unit. A key customer for simulation technology, synthetic training environments, and space operations decision-support tools — see the OTTI/SWARM initiative.'},
+spacewerx:{t:'SpaceWERX — best startup on-ramp',b:'$470M budget. Director: Arthur Grijalva. Manages SBIR/STTR, STRATFI/TACFI, and cohort programs.<br><br><b>TACFI:</b> $375K–$2M. Requires Phase II award + matching funds.<br><b>STRATFI:</b> $3M–$15M. Requires Phase II + VC co-investment. True Anomaly, Varda, K2 Space all scaled through STRATFI.<br><br><b>Current:</b> PY26.1 STRATFI NOO open — deadline May 29, 2026. spacewerx.us'},
+sda:{t:'Space Development Agency (SDA)',b:'Acquires PWSA — the LEO constellation of 300+ satellites for missile tracking and data transport. Fastest DoD acquisition: 2–3 year delivery timelines.<br><br><b>How to engage:</b> sda.mil/opportunities. T3TRK tracking layer (~54 sats) is current active solicitation.<br><br><b>VC signal:</b> SDA contract win = strong Series A/B signal.'},
+diu:{t:'Defense Innovation Unit (DIU)',b:'Designed specifically for commercial tech companies. Mountain View, CA. Uses OTA contracts — faster, less bureaucratic.<br><br>DIU explicitly works with VCs and has investor relations staff. VICTUS HAZE (True Anomaly + Rocket Lab) was a DIU engagement.<br><br>diu.mil'},
+afrl:{t:'AFRL Space Vehicles Directorate',b:'Kirtland AFB, NM. Basic and applied research. AFRL often co-invests in STRATFI contracts — Varda\'s $60M STRATFI included $15M from AFRL. Provides test facilities startups can access for demonstration.'},
+'peo-c2':{t:'PEO Space C2',b:'Manages Space C2 (SpC2) modernization and ground software. OCX cautionary tale lives here.<br><br><b>VC angle:</b> Ground software modernization is a priority. Cloud-native C2 platforms and multi-mission ground software are active requirements.'},
+'peo-gps':{t:'PEO GPS & Navigation Systems',b:'GPS III, GPS OCX ground system (troubled, $1B+), military GPS user equipment (MGUE).<br><br><b>VC angle:</b> Anti-jam/anti-spoof chipsets and alternative PNT (LEO-PNT) are active commercial opportunities.'},
+'peo-milsatcom':{t:'PEO MILSATCOM',b:'AEHF (nuclear C2), WGS (wideband), Protected Tactical Services (jam-resistant). CASR commercial SATCOM expansion managed here.<br><br><b>VC angle:</b> SATCOM interoperability software. New SATCOM vendors being onboarded for CASR 2026.'},
+'peo-launch':{t:'PEO Launch Enterprise',b:'NSSL contracts. SpaceX + ULA dominate heavy lift. NSSL Lane 1 more open to newer entrants.<br><br><b>VC angle:</b> Responsive launch operations software, range safety automation, rapid integration tooling.'},
+'peo-scp':{t:'PEO Space Combat Power — Col. Bryon McClain',b:'Manages Golden Dome space-based interceptors. 20 OTA contracts ($3.2B) to 12 firms awarded late 2025/early 2026. Initial capability 2028.<br><br><b>VC angle:</b> Kill chain software and battle management — the software layer nobody has claimed. Hardware covered by primes + True Anomaly.'}
+};
+
+var DOMAINS=[
+{id:'satcom',c:'#185FA5',t:'Satellite communications (SATCOM)',b:'~$3.7B',d:'#1 commercial integration priority. CASR expanding to SATCOM 2026.',sp:'SDA transport layer (PWSA) · Evolved Strategic SATCOM · Protected Tactical SATCOM (PTS) · CASR SATCOM pilot',w:'SpaceX/Starshield · SES · Viasat · Intelsat · L3Harris · Northrop Grumman',ws:'LEO SATCOM interoperability software — translation layer letting military systems hop between Starlink, SES O3b, and legacy MILSATCOM without manual reconfiguration. Nobody owns this cleanly.'},
+{id:'sda',c:'#185FA5',t:'Space domain awareness (SDA)',b:'~$1.5B',d:'Tracking every object in space. CASR SDA pilot March 2025 (4 companies, $1.1M, 90 days). Scaling 2026.',sp:'CASR SDA pilot · Space Surveillance Network upgrades · US-Japan SDA hosted payload (Feb 2025) · Commercial SDA wargames (14 companies)',w:'True Anomaly · Scout Space · LeoLabs · ExoAnalytic · Northrop Grumman · Raytheon',ws:'AI-powered conjunction analysis at scale — current tools can\'t handle 50,000+ tracked objects. Fusion engine ingesting radar, optical, and RF into one real-time threat picture.'},
+{id:'pnt',c:'#185FA5',t:'PNT — positioning, navigation & timing',b:'~$1.2B',d:'GPS underpins every US military system. Jamming is a live threat (Ukraine, Middle East). Space Force seeking commercial alternatives.',sp:'GPS III follow-on · GPS OCX ground system (troubled) · Military GPS User Equipment (MGUE Inc 1 & 2) · EPS-R enhanced polar payloads',w:'Lockheed Martin · Raytheon · L3Harris · Xona Space (LEO-PNT)',ws:'LEO-PNT constellation — GPS is jammable at MEO; LEO-based PNT provides stronger, harder-to-jam signals. Also: anti-jam/anti-spoof chipsets for ground and airborne users.'},
+{id:'golddome',c:'#993556',t:'Golden Dome — missile warning & intercept',b:'$13.8B reconciliation',d:'Largest new program in Space Force history. 20 OTA contracts ($3.2B) to 12 firms. Initial capability targeted 2028.',sp:'SBI prototype OTAs ($3.2B, 12 firms) · SDA tracking layer T3TRK (~54 sats) · HBTSS hypersonic tracking · Kill chain software integration',w:'Anduril · True Anomaly ($650M raised) · Turion Space · Quindar · GITAI USA · SpaceX · Lockheed Martin · Northrop Grumman · Raytheon · General Dynamics',ws:'Kill chain software — fuses sensor data, decides when to shoot, and coordinates 600+ satellites in real time. No single company owns this. Also: battle damage assessment from orbit.'},
+{id:'launch',c:'#BA7517',t:'Launch & space access',b:'~$2B+',d:'SpaceX and ULA dominate heavy lift. Responsiveness — launch on demand in hours — is the unsolved problem.',sp:'NSSL Phase 3 (SpaceX, ULA Vulcan) · NSSL Lane 1 (Rocket Lab, ABL) · Rocket Cargo · Tactically Responsive Space (TacRS)',w:'SpaceX · ULA · Rocket Lab · Blue Origin · ABL Space',ws:'Responsive launch operations software — scheduling, range safety, payload integration for 24-hour launch. Process is still manual. Also: in-space propulsion for rapid orbital transfer.'},
+{id:'c2',c:'#534AB7',t:'Command, control & battle management',b:'~$800M',d:'Software to command thousands of satellites in real time. Current systems built for dozens, not thousands. OCX is the cautionary tale.',sp:'Space C2 (SpC2) modernization · Golden Dome BM C2 · GPS OCX · JADC2 integration',w:'Palantir · Leidos · Raytheon · Booz Allen Hamilton · SAIC',ws:'Autonomous constellation management — at 1,000+ satellites (PWSA scale) human operators can\'t keep up. Software that autonomously re-tasks and re-configures satellites is a $500M+ gap.'},
+{id:'isr',c:'#185FA5',t:'Tactical ISR — surveillance & tracking',b:'~$900M',d:'Persistent wide-area surveillance of hypersonic threats from space. SDA Tranche 1 tracking satellites launched Sept 2025.',sp:'PWSA tracking layer (T1/T2/T3TRK, 54+ sats) · HBTSS hypersonic tracking · OPIR missile warning · WFOV sensing',w:'Millennium Space (Boeing) · L3Harris · Northrop Grumman · Slingshot Aerospace · HawkEye 360',ws:'On-orbit AI inference — pushing compute to the satellite itself to reduce latency from hours to seconds. Radiation-hardened edge AI chips for space barely exist commercially.'},
+{id:'cyber',c:'#534AB7',t:'Cyberspace operations & electronic warfare',b:'~$600M',d:'Every Space Force satellite is a cyber target. Moving toward Zero Trust for space systems. Wants commercial help.',sp:'Defensive cyber / Zero Trust for space systems · Protected Tactical Services (anti-jam) · Electronic warfare (classified) · Cyber workforce tools',w:'Booz Allen Hamilton · Leidos · ManTech · Shift5 · SpiderOak',ws:'Zero Trust for satellite ground systems — legacy perimeter security needs full rewrite. Multi-billion upgrade cycle. Small team with DoD cyber + space expertise could own a significant piece.'},
+{id:'ground',c:'#1D9E75',t:'Ground systems & software infrastructure',b:'~$1B+',d:'Most undersupplied domain by startups. Space Force actively pushing toward common, modular ground software away from siloed legacy systems.',sp:'GPS OCX ($1B+, troubled) · Space C2 ground infrastructure · Commercial ground station networks · SDA PWSA ground system',w:'Raytheon · Kratos Defense · General Dynamics · Leaf Space · Atlas Space Operations',ws:'Multi-mission ground software platform — cloud-native layer (think AWS for space ground systems) handling telemetry, commanding, and data processing across multiple missions. Kratos is hardware-heavy; a software-first version is wide open.'},
+{id:'mfg',c:'#BA7517',t:'Space manufacturing & industrial base',b:'Industrial base',d:'SDA wants 300+ PWSA satellites. US manufacturing base cannot produce at that rate. The "second valley of death."',sp:'SDA PWSA constellation (300+ sats over 5 yrs) · Golden Dome SBI volume production · TacRS rapid bus manufacturing',w:'SpaceX (Starshield) · Northrop Grumman · York Space Systems · Terran Orbital · Isembard (precision components)',ws:'Automated satellite assembly — robotic assembly lines for satellite buses at automotive scale don\'t exist. Also: radiation-hardened component supply chain — US dangerously dependent on a small number of rad-hard chip suppliers.'}
+];
+
+var domainFilter='all';
+var domainOpen={satcom:true,golddome:true,ground:true};
+
+function drawer(id){
+  var d=DD[id];if(!d)return;
+  document.getElementById('drawer-title').textContent=d.t;
+  document.getElementById('drawer-body').innerHTML=d.b;
+  document.getElementById('drawer').style.display='block';
+}
+function closeDrawer(){document.getElementById('drawer').style.display='none';}
+
+function setTab(v,btn){
+  document.querySelectorAll('.view').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('.tab').forEach(function(el){el.classList.remove('active');});
+  document.getElementById('view-'+v).classList.add('active');
+  btn.classList.add('active');
+}
+
+function setDF(f,btn){
+  domainFilter=f;
+  document.querySelectorAll('.dfilt').forEach(function(el){el.classList.remove('active');});
+  btn.classList.add('active');
+  renderDomains();
+}
+
+function toggleDomain(id){
+  if(domainOpen[id]) delete domainOpen[id]; else domainOpen[id]=true;
+  renderDomains();
+}
+
+function renderDomains(){
+  var el=document.getElementById('domain-list');
+  el.innerHTML='';
+  DOMAINS.forEach(function(d){
+    var open=!!domainOpen[d.id];
+    var div=document.createElement('div');
+    div.className='domain-item';
+    var tags=d.w.split(' · ').map(function(w){return'<span class="tag">'+w+'</span>';}).join('');
+    var bodyHTML='<div class="domain-desc">'+d.d+'</div>';
+    if(domainFilter==='all'||domainFilter==='budget'){
+      bodyHTML+='<div class="domain-section"><div class="domain-section-label" style="color:#185FA5">Budget / spending</div><div class="domain-section-body">'+d.sp+'</div></div>';
+    }
+    if(domainFilter==='all'||domainFilter==='winners'){
+      bodyHTML+='<div class="domain-section"><div class="domain-section-label" style="color:#993556">Contract winners</div><div class="tags">'+tags+'</div></div>';
+    }
+    if(domainFilter==='all'||domainFilter==='ws'){
+      bodyHTML+='<div class="ws-box"><div class="ws-label">VC white space</div><div class="ws-text">'+d.ws+'</div></div>';
+    }
+    div.innerHTML='<div class="domain-header" onclick="toggleDomain(\''+d.id+'\')">'
+      +'<div class="domain-bar" style="background:'+d.c+'"></div>'
+      +'<div class="domain-title">'+d.t+'</div>'
+      +(domainFilter==='all'||domainFilter==='budget'?'<div class="domain-budget">'+d.b+'</div>':'')
+      +'<div class="domain-chev" style="transform:'+(open?'rotate(180deg)':'none')+'">▼</div>'
+      +'</div>'
+      +'<div class="domain-body'+(open?' open':'')+'">'+bodyHTML+'</div>';
+    el.appendChild(div);
+  });
+}
+
+renderDomains();
+</script>
+</div>
+</body>
+</html>
